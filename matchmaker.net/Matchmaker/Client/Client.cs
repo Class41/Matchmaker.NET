@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using System.Net.Sockets;
+
 namespace Matchmaker.Net.Client
 {
     class Client
