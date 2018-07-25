@@ -6,10 +6,11 @@ using System.Threading.Tasks;
 
 namespace Matchmaker.Net.Enums
 {
-        public enum status
+        public enum ErrorSeverity
         {
-            CONNECTED,
-            DISCONNECTED,
-            IDLE
+            ERROR_INFO,
+            ERROR_WARNING,
+            ERROR_ATTENTION,
+            ERROR_CRITICAL_FAILURE
         }
 }

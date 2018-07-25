@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Matchmaker.Net.Debug;
 using Matchmaker.Net.Enums;
 using Matchmaker.Net.Client;
+using Matchmaker.Net.Network;
 
 namespace Matchmaker.Net.ServerManager
 {
@@ -12,7 +13,8 @@ namespace Matchmaker.Net.ServerManager
         private static Queue<Client.Client> clients = new Queue<Client.Client>();
         private static int MAX_CLIENTS_CONNECTED;
         private static int currentlyOperatingClients { get; set; }
-
+        private static int SERVER_INCOMING_OUTGOING_CONNECTION_PORT = 12345;
+             
         public static int GetCurrentlyOperatingClients()
         {
             return currentlyOperatingClients;
@@ -20,7 +22,7 @@ namespace Matchmaker.Net.ServerManager
 
         public static void Launch()
         {
-
+            SocketManager serverSocket = new SocketManager(SERVER_INCOMING_OUTGOING_CONNECTION_PORT);
         }
     }
 }

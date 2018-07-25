@@ -45,8 +45,11 @@
     <Compile Include="Matchmaker\Client\Admin.cs" />
     <Compile Include="Matchmaker\Client\Client.cs" />
     <Compile Include="Matchmaker\Client\User.cs" />
-    <Compile Include="Matchmaker\Debug.cs" />
+    <Compile Include="Matchmaker\Logging.cs" />
+    <Compile Include="Matchmaker\Enums\ErrorSeverity.cs" />
     <Compile Include="Matchmaker\Enums\UserConnectionStatus.cs" />
+    <Compile Include="Matchmaker\Network\ServerConnectionStateObject.cs" />
+    <Compile Include="Matchmaker\Network\SocketManager.cs" />
     <Compile Include="Matchmaker\Server\ServerManager.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -54,8 +57,6 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Matchmaker\Network\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
