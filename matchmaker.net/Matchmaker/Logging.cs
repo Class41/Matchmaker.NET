@@ -23,6 +23,25 @@ namespace Matchmaker.Net.Debug
             dbgMessage(message + ": " + data);
         }
 
+        public static void dbgMessageArray<T>(T[] data)
+        {
+            int position = 0;
+            foreach (T value in data)
+            {
+                dbgMessage(position++ + " : " + value.ToString());
+            }
+        }
+
+        public static void dbgMessageByteArray<T>(T[] data)
+        {
+            int position = 0;
+            foreach (T value in data)
+            {
+                if(value.ToString() != "0")
+                dbgMessage(position++ + " : " + value.ToString());
+            }
+        }
+
         public static void errlog(string message, ErrorSeverity data)
         {
             switch(data)

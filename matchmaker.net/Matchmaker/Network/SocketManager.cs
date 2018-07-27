@@ -43,7 +43,7 @@ namespace Matchmaker.Net.Network
             }
             catch (Exception e)
             {
-                Debug.Logging.errlog("Cannot bind to port: " + e.StackTrace, ErrorSeverity.ERROR_CRITICAL_FAILURE);
+                Debug.Logging.errlog("Cannot bind to port:\n" + e.StackTrace, ErrorSeverity.ERROR_CRITICAL_FAILURE);
             }
 
             serverAsyncListen();
@@ -75,13 +75,23 @@ namespace Matchmaker.Net.Network
 
         private void readAsyncBytes(IAsyncResult ar)
         {
-            Debug.Logging.errlog("Reading data from socket", ErrorSeverity.ERROR_INFO);
-            ServerConnectionStateObject clientState = (ServerConnectionStateObject)ar.AsyncState;
-            int bytecount = clientState.workSocket.EndReceive(ar);
-            clientState.byteBuffer.CopyTo(clientState.requestBuffer, clientState.requestBufferPosition);
-            clientState.requestBufferPosition += bytecount;
-            Debug.Logging.errlog("Recieved " + bytecount + " bytes (" + clientState.requestBufferPosition + " total bytes stored in instance)", ErrorSeverity.ERROR_INFO);
+            try
+            {
+                Debug.Logging.errlog("Reading data from socket", ErrorSeverity.ERROR_INFO);
+                ServerConnectionStateObject clientState = (ServerConnectionStateObject)ar.AsyncState;
+                int bytecount = clientState.workSocket.EndReceive(ar);
+                Array.ConstrainedCopy(clientState.byteBuffer, 0, clientState.requestBuffer, clientState.requestBufferPosition, bytecount);
+                Array.Clear(clientState.byteBuffer, 0, clientState.BUFFER_SIZE);
+                clientState.requestBufferPosition += bytecount;
+                Debug.Logging.errlog("Recieved " + bytecount + " bytes (" + clientState.requestBufferPosition + " total bytes stored in instance)", ErrorSeverity.ERROR_INFO);
+                Debug.Logging.dbgMessageByteArray<byte>(clientState.requestBuffer);
 
+                clientState.workSocket.BeginReceive(clientState.byteBuffer, 0, clientState.BUFFER_SIZE, SocketFlags.None, new AsyncCallback(readAsyncBytes), clientState);
+            }
+            catch (Exception e)
+            {
+                Debug.Logging.errlog("Something went wrong reading from socket:\n" + e.StackTrace, ErrorSeverity.ERROR_WARNING);
+            }
 
         }
 
