@@ -48,6 +48,7 @@
     <Compile Include="Matchmaker\Logging.cs" />
     <Compile Include="Matchmaker\Enums\ErrorSeverity.cs" />
     <Compile Include="Matchmaker\Enums\UserConnectionStatus.cs" />
+    <Compile Include="Matchmaker\Network\NetworkObject.cs" />
     <Compile Include="Matchmaker\Network\ServerConnectionStateObject.cs" />
     <Compile Include="Matchmaker\Network\SocketManager.cs" />
     <Compile Include="Matchmaker\Server\ServerManager.cs" />

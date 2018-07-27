@@ -13,7 +13,7 @@ namespace Matchmaker.Net.ServerManager
         private static Queue<Client.Client> clients = new Queue<Client.Client>();
         private static int MAX_CLIENTS_CONNECTED;
         private static int currentlyOperatingClients { get; set; }
-        private static int SERVER_INCOMING_OUTGOING_CONNECTION_PORT = 12345;
+        private static int SERVER_INCOMING_OUTGOING_CONNECTION_PORT = 25599;
              
         public static int GetCurrentlyOperatingClients()
         {

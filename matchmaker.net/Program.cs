@@ -12,6 +12,7 @@ namespace Matchmaker.Net
     {
         static void Main(string[] args)
         {
+            Debug.Logging.MODE_DEBUG = true;
             ServerManager.ServerManager.Launch();
         }
     }

@@ -7,11 +7,17 @@ using System.Threading.Tasks;
 
 namespace Matchmaker.Net.Network
 {
-    class ServerConnectionStateObject
+    public class ServerConnectionStateObject
     {
         public Socket workSocket = null;
-        public const int BUFFER_SIZE = 2048;
-        public byte[] byteBuffer = new Byte[BUFFER_SIZE];
+        public int BUFFER_SIZE = 2048, requestBufferPosition = 0;
+        public byte[] byteBuffer, requestBuffer;
         public StringBuilder data = new StringBuilder();
+
+        public ServerConnectionStateObject()
+        {
+            byteBuffer = new Byte[BUFFER_SIZE];
+            requestBuffer = new Byte[BUFFER_SIZE];
+        }
     }
 }

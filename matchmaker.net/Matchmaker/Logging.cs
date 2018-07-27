@@ -5,6 +5,8 @@ namespace Matchmaker.Net.Debug
 {
     public static class Logging
     {
+        public static bool MODE_DEBUG = false;
+
         public static void dbgMessage<T>(T data)
         {
             dbgMessage("Data: " + data);
@@ -12,7 +14,8 @@ namespace Matchmaker.Net.Debug
 
         public static void dbgMessage(string message)
         {
-            Console.WriteLine("\n" + message);
+            if (MODE_DEBUG)
+            Console.WriteLine(message);
         }
 
         public static void dbgMessage<T>(string message, T data)
@@ -25,16 +28,16 @@ namespace Matchmaker.Net.Debug
             switch(data)
             {
                 case ErrorSeverity.ERROR_INFO:
-                    dbgMessage("[INFO]:: " + message);
+                    dbgMessage("[INFO] :: " + message);
                     break;
                 case ErrorSeverity.ERROR_WARNING:
-                    dbgMessage("[WARN]:: " + message);
+                    dbgMessage("[WARN] :: " + message);
                     break;
                 case ErrorSeverity.ERROR_ATTENTION:
-                    dbgMessage("[ATTN]:: " + message);
+                    dbgMessage("[ATTN] :: " + message);
                     break;
                 case ErrorSeverity.ERROR_CRITICAL_FAILURE:
-                    dbgMessage("[FAIL]:: " + message);
+                    dbgMessage("[FAIL] :: " + message);
                     break;
             }
         }
