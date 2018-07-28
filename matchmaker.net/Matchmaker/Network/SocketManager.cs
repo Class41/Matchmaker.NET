@@ -80,6 +80,28 @@ namespace Matchmaker.Net.Network
                 Debug.Logging.errlog("Reading data from socket", ErrorSeverity.ERROR_INFO);
                 ServerConnectionStateObject clientState = (ServerConnectionStateObject)ar.AsyncState;
                 int bytecount = clientState.workSocket.EndReceive(ar);
+
+                if(bytecount == 5)
+                {
+                    try
+                    {
+                        string eofCheck = Encoding.ASCII.GetString(clientState.byteBuffer);
+                        if (eofCheck.IndexOf("<EOF>") != -1)
+                        {
+                            decodeOperation((NetworkObject)ByteArrayToObject(clientState.requestBuffer), clientState);
+
+                            Array.Clear(clientState.byteBuffer, 0, clientState.BUFFER_SIZE);
+                            Array.Clear(clientState.requestBuffer, 0, clientState.BUFFER_SIZE);
+                            clientState.workSocket.BeginReceive(clientState.byteBuffer, 0, clientState.BUFFER_SIZE, SocketFlags.None, new AsyncCallback(readAsyncBytes), clientState);
+                            return;
+                        }
+                    }
+                    catch(Exception e)
+                    {
+
+                    }
+                }
+
                 Array.ConstrainedCopy(clientState.byteBuffer, 0, clientState.requestBuffer, clientState.requestBufferPosition, bytecount);
                 Array.Clear(clientState.byteBuffer, 0, clientState.BUFFER_SIZE);
                 clientState.requestBufferPosition += bytecount;
@@ -92,7 +114,11 @@ namespace Matchmaker.Net.Network
             {
                 Debug.Logging.errlog("Something went wrong reading from socket:\n" + e.StackTrace, ErrorSeverity.ERROR_WARNING);
             }
+        }
 
+        private void decodeOperation(NetworkObject networkObject, ServerConnectionStateObject clientState)
+        {
+            
         }
 
         public byte[] objectToByteArray(object obj)

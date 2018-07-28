@@ -42,9 +42,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Matchmaker\Client\Admin.cs" />
+    <Compile Include="Matchmaker\Client\Server.cs" />
     <Compile Include="Matchmaker\Client\Client.cs" />
     <Compile Include="Matchmaker\Client\User.cs" />
+    <Compile Include="Matchmaker\Enums\NetworkObjectType.cs" />
     <Compile Include="Matchmaker\Logging.cs" />
     <Compile Include="Matchmaker\Enums\ErrorSeverity.cs" />
     <Compile Include="Matchmaker\Enums\UserConnectionStatus.cs" />
