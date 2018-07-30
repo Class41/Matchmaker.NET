@@ -10,18 +10,40 @@ namespace Matchmaker.Net.ServerManager
 {
     public static class ServerManager
     {
-        private static Queue<Client.Client> clients = new Queue<Client.Client>();
-        private static int MAX_CLIENTS_CONNECTED;
-        private static int currentlyOperatingClients { get; set; }
+        public static Queue<DelayedQueueConnection> queuedClients = new Queue<DelayedQueueConnection>();
+        private static int MAX_CLIENTS_CONNECTED = 2;
+        private static int currentlyOperatingClients = 0;
         private static int SERVER_INCOMING_OUTGOING_CONNECTION_PORT = 25599;
-             
-        public static int GetCurrentlyOperatingClients()
+        private static UUID IDENTITY;
+
+        public static bool clientCanConnect()
         {
-            return currentlyOperatingClients;
+            if (((currentlyOperatingClients < MAX_CLIENTS_CONNECTED) && queuedClients.Count == 0)  || MAX_CLIENTS_CONNECTED < 0)
+                return true;
+            else
+                return false;
+        }
+
+        public static void connectClient()
+        {
+            currentlyOperatingClients++;
+            Logging.errlog("Active clients updated: " + currentlyOperatingClients + "/" + MAX_CLIENTS_CONNECTED, ErrorSeverity.ERROR_INFO);
+        }
+
+        public static void diconnectClient()
+        {
+            currentlyOperatingClients--;
+            Logging.errlog("Active clients updated: " + currentlyOperatingClients + "/" + MAX_CLIENTS_CONNECTED, ErrorSeverity.ERROR_INFO);
+        }
+
+        public static int getOpenSlots()
+        {
+            return MAX_CLIENTS_CONNECTED - currentlyOperatingClients;
         }
 
         public static void Launch()
         {
+            IDENTITY = new UUID();
             SocketManager serverSocket = new SocketManager(SERVER_INCOMING_OUTGOING_CONNECTION_PORT);
         }
     }

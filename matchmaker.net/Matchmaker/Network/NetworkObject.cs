@@ -3,12 +3,18 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Matchmaker.Net.Enums;
 
 namespace Matchmaker.Net.Network
 {
     [Serializable]
     class NetworkObject
     {
-        //TODO populate network object
+        NetObjectType requestType;
+
+        public NetworkObject(NetObjectType type)
+        {
+
+        }
     }
 }

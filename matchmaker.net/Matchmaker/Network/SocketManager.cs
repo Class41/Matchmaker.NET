@@ -7,14 +7,16 @@ using System.Text;
 using System.Threading.Tasks;
 using Matchmaker.Net.Debug;
 using Matchmaker.Net.Enums;
+using Matchmaker.Net.ServerManager;
 using System.Threading;
 using Matchmaker.Net.Network;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Net.Security;
 using System.IO;
 
 namespace Matchmaker.Net.Network
 {
-    class SocketManager
+    public class SocketManager
     {
         public SocketManager(int port) { BeginListen(port); }
         
@@ -70,7 +72,23 @@ namespace Matchmaker.Net.Network
 
             ServerConnectionStateObject clientState = new ServerConnectionStateObject();
             clientState.workSocket = handler;
-            clientState.workSocket.BeginReceive(clientState.byteBuffer,0, clientState.BUFFER_SIZE, SocketFlags.None, new AsyncCallback(readAsyncBytes), clientState);
+
+            if (ServerManager.ServerManager.clientCanConnect())
+            {
+                Debug.Logging.errlog("Directly handling incoming request", ErrorSeverity.ERROR_INFO);
+                ServerManager.ServerManager.connectClient();
+                readAsyncDelayed(ar, clientState);
+            }
+            else
+            {
+                Debug.Logging.errlog("CPU full: offloading incoming request to queue", ErrorSeverity.ERROR_INFO);
+                ServerManager.ServerManager.queuedClients.Enqueue(new DelayedQueueConnection(ar, clientState));
+            }
+        }
+
+        public void readAsyncDelayed(IAsyncResult ar, ServerConnectionStateObject clientState)
+        {
+            clientState.workSocket.BeginReceive(clientState.byteBuffer, 0, clientState.BUFFER_SIZE, SocketFlags.None, new AsyncCallback(readAsyncBytes), clientState);
         }
 
         private void readAsyncBytes(IAsyncResult ar)
@@ -89,10 +107,7 @@ namespace Matchmaker.Net.Network
                         if (eofCheck.IndexOf("<EOF>") != -1)
                         {
                             decodeOperation((NetworkObject)ByteArrayToObject(clientState.requestBuffer), clientState);
-
-                            Array.Clear(clientState.byteBuffer, 0, clientState.BUFFER_SIZE);
-                            Array.Clear(clientState.requestBuffer, 0, clientState.BUFFER_SIZE);
-                            clientState.workSocket.BeginReceive(clientState.byteBuffer, 0, clientState.BUFFER_SIZE, SocketFlags.None, new AsyncCallback(readAsyncBytes), clientState);
+                            ServerManager.ServerManager.diconnectClient();
                             return;
                         }
                     }
@@ -113,6 +128,7 @@ namespace Matchmaker.Net.Network
             catch (Exception e)
             {
                 Debug.Logging.errlog("Something went wrong reading from socket:\n" + e.StackTrace, ErrorSeverity.ERROR_WARNING);
+                ServerManager.ServerManager.diconnectClient();
             }
         }
 

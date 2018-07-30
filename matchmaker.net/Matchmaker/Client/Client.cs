@@ -8,7 +8,11 @@ using System.Net.Sockets;
 
 namespace Matchmaker.Net.Client
 {
-    class Client
+    public class Client
     {
+        public Client()
+        {
+
+        }
     }
 }

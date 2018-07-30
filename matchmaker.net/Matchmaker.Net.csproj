@@ -34,6 +34,7 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Management" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -45,10 +46,13 @@
     <Compile Include="Matchmaker\Client\Server.cs" />
     <Compile Include="Matchmaker\Client\Client.cs" />
     <Compile Include="Matchmaker\Client\User.cs" />
+    <Compile Include="Matchmaker\Client\UUID.cs" />
     <Compile Include="Matchmaker\Enums\NetworkObjectType.cs" />
     <Compile Include="Matchmaker\Logging.cs" />
     <Compile Include="Matchmaker\Enums\ErrorSeverity.cs" />
     <Compile Include="Matchmaker\Enums\UserConnectionStatus.cs" />
+    <Compile Include="Matchmaker\Server\ClientQueueManager.cs" />
+    <Compile Include="Matchmaker\Network\DelayedQueueConnection.cs" />
     <Compile Include="Matchmaker\Network\NetworkObject.cs" />
     <Compile Include="Matchmaker\Network\ServerConnectionStateObject.cs" />
     <Compile Include="Matchmaker\Network\SocketManager.cs" />
