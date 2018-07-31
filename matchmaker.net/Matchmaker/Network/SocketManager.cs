@@ -13,12 +13,13 @@ using Matchmaker.Net.Network;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Net.Security;
 using System.IO;
+using Matchmaker.Net.Server;
 
 namespace Matchmaker.Net.Network
 {
     public class SocketManager
     {
-        public SocketManager(int port) { BeginListen(port); }
+        public SocketManager(int port) { ClientQueueManager queueManager = new ClientQueueManager(this);  BeginListen(port);  }
         
         private IPHostEntry ipHostInfo;
         private IPAddress ipAddress;

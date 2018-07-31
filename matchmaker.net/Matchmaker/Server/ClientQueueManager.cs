@@ -18,7 +18,8 @@ namespace Matchmaker.Net.Server
        public ClientQueueManager(SocketManager sockMgr)
         {
             this.socketManager = sockMgr;
-            beginManager();
+            Thread asyncQueue = new Thread(beginManager);
+            asyncQueue.Start();
         }
 
         private void beginManager()
@@ -29,7 +30,12 @@ namespace Matchmaker.Net.Server
                 {
                     Logging.errlog("Releasing clients from connection queue", ErrorSeverity.ERROR_INFO);
 
-                    socketManager.readAsyncDelayed();
+                    for (int i = 1; i <= ServerManager.ServerManager.getOpenSlots(); i++)
+                    {
+                        DelayedQueueConnection connectionObject = ServerManager.ServerManager.queuedClients.Dequeue();
+                        socketManager.readAsyncDelayed(connectionObject.ar, connectionObject.clientState);
+                        ServerManager.ServerManager.connectClient();
+                    }
                 }
 
                 Thread.Sleep(250);
