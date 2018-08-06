@@ -8,9 +8,9 @@ using Matchmaker.Net.Enums;
 namespace Matchmaker.Net.Network
 {
     [Serializable]
-    class NetworkObject
+    public class NetworkObject
     {
-        NetObjectType requestType;
+        public NetObjectType requestType;
 
         public NetworkObject(NetObjectType type)
         {

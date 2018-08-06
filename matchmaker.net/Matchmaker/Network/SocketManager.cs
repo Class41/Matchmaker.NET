@@ -89,7 +89,14 @@ namespace Matchmaker.Net.Network
 
         public void readAsyncDelayed(IAsyncResult ar, ServerConnectionStateObject clientState)
         {
-            clientState.workSocket.BeginReceive(clientState.byteBuffer, 0, clientState.BUFFER_SIZE, SocketFlags.None, new AsyncCallback(readAsyncBytes), clientState);
+            try
+            {
+                clientState.workSocket.BeginReceive(clientState.byteBuffer, 0, clientState.BUFFER_SIZE, SocketFlags.None, new AsyncCallback(readAsyncBytes), clientState);
+            }
+            catch(Exception e)
+            {
+                Debug.Logging.errlog("Socket read failure:\n" + e.StackTrace, ErrorSeverity.ERROR_INFO);
+            }
         }
 
         private void readAsyncBytes(IAsyncResult ar)
@@ -114,7 +121,8 @@ namespace Matchmaker.Net.Network
                     }
                     catch(Exception e)
                     {
-
+                        Debug.Logging.errlog("Malformed or incomplete data, object conversion error", ErrorSeverity.ERROR_INFO);
+                        return;
                     }
                 }
 
@@ -135,7 +143,21 @@ namespace Matchmaker.Net.Network
 
         private void decodeOperation(NetworkObject networkObject, ServerConnectionStateObject clientState)
         {
-            
+            switch(networkObject.requestType)
+            {
+                case NetObjectType.CLIENT_REQUEST_SERVER_LIST:
+                    break;
+                case NetObjectType.CLIENT_SERVER_MODIFY_REGISTERED_SERVER:
+                    break;
+                case NetObjectType.CLIENT_SERVER_REGISTER_SERVER:
+                    break;
+                case NetObjectType.CLIENT_SERVER_RESPONSE_GENERIC:
+                    break;
+                case NetObjectType.CLIENT_SERVER_UNREGISTER_SERVER:
+                    break;
+                case NetObjectType.SERVER_SEND_MATCHMAKE:
+                    break;
+            }
         }
 
         public byte[] objectToByteArray(object obj)
