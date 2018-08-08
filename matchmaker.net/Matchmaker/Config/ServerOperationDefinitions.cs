@@ -8,40 +8,54 @@ using Matchmaker.Net.Network;
 
 namespace Matchmaker.Net.Configuration
 {
-    class ServerOperationDefinitions : ServerOperation
+    public class ServerOperationDefinitions : ServerOperation
     {
-        public ServerOperationDefinitions(ServerConnectionStateObject connection, NetworkObject obj) : base(connection, obj)
+        //Called when client makes a matchmaking request
+        public override void handleMatchmakingRequest(ServerConnectionStateObject connection, NetworkObject recievedObj)
         {
+            NetworkObject response = new NetworkObject(recievedObj.requestType);
+            throw new NotImplementedException(); //remove this and replace with functionality
+            sendResponse(connection, response);
         }
 
-        public override void handleMatchmakingRequest()
+        //called when the client tries to modify existing registered server in server list
+        public override void handleModifyExistingServerRequest(ServerConnectionStateObject connection, NetworkObject recievedObj)
         {
-            throw new NotImplementedException();
+            NetworkObject response = new NetworkObject(recievedObj.requestType);
+            throw new NotImplementedException(); //remove this and replace with functionality
+            sendResponse(connection, response);
         }
 
-        public override void handleModifyExistingServerRequest()
+        //called when client asks to register a new server
+        public override void handleRegisterNewServer(ServerConnectionStateObject connection, NetworkObject recievedObj)
         {
-            throw new NotImplementedException();
+            NetworkObject response = new NetworkObject(recievedObj.requestType);
+            throw new NotImplementedException(); //remove this and replace with functionality
+            sendResponse(connection, response);
         }
 
-        public override void handleRegisterNewServer()
+        //called when a generic response is required
+        public override void handleRespondToClient(ServerConnectionStateObject connection, NetworkObject recievedObj)
         {
-            throw new NotImplementedException();
+            NetworkObject response = new NetworkObject(recievedObj.requestType);
+            throw new NotImplementedException(); //remove this and replace with functionality
+            sendResponse(connection, response);
         }
 
-        public override void handleRespondToClient()
+        //called when the client requests the server list
+        public override void handleServerListRequest(ServerConnectionStateObject connection, NetworkObject recievedObj)
         {
-            throw new NotImplementedException();
+            NetworkObject response = new NetworkObject(recievedObj.requestType);
+            throw new NotImplementedException(); //remove this and replace with functionality
+            sendResponse(connection, response);
         }
 
-        public override void handleServerListRequest()
+        //called when the client asks to unregister a currently registered server
+        public override void handleUnregisterServerRequest(ServerConnectionStateObject connection, NetworkObject recievedObj)
         {
-            throw new NotImplementedException();
-        }
-
-        public override void handleUnregisterServerRequest()
-        {
-            throw new NotImplementedException();
+            NetworkObject response = new NetworkObject(recievedObj.requestType);
+            throw new NotImplementedException(); //remove this and replace with functionality
+            sendResponse(connection, response);
         }
     }
 }

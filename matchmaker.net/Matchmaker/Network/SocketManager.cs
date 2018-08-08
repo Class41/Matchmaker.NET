@@ -19,12 +19,14 @@ namespace Matchmaker.Net.Network
 {
     public class SocketManager
     {
-        public SocketManager(int port) { ClientQueueManager queueManager = new ClientQueueManager(this);  BeginListen(port);  }
+        public SocketManager(int port, ServerOperation operationDefinition) { ClientQueueManager queueManager = new ClientQueueManager(this);  BeginListen(port);  opDef = operationDefinition; }
         
         private IPHostEntry ipHostInfo;
         private IPAddress ipAddress;
         private IPEndPoint localEndPoint;
         private Socket connectionSocket;
+        private ServerOperation opDef;
+
         public static ManualResetEvent threadFinished = new ManualResetEvent(false);
 
         private void BeginListen(int port)
@@ -141,23 +143,34 @@ namespace Matchmaker.Net.Network
             }
         }
 
-        private void decodeOperation(NetworkObject networkObject, ServerConnectionStateObject clientState)
+        private void decodeOperation(NetworkObject recievedNetworkObject, ServerConnectionStateObject clientState)
         {
-            switch(networkObject.requestType)
+            switch(recievedNetworkObject.requestType)
             {
                 case NetObjectType.CLIENT_REQUEST_SERVER_LIST:
+                    opDef.handleServerListRequest(clientState, recievedNetworkObject);
                     break;
                 case NetObjectType.CLIENT_SERVER_MODIFY_REGISTERED_SERVER:
+                    opDef.handleModifyExistingServerRequest(clientState, recievedNetworkObject);
                     break;
                 case NetObjectType.CLIENT_SERVER_REGISTER_SERVER:
+                    opDef.handleRegisterNewServer(clientState, recievedNetworkObject);
                     break;
                 case NetObjectType.CLIENT_SERVER_RESPONSE_GENERIC:
+                    opDef.handleRespondToClient(clientState, recievedNetworkObject);
                     break;
                 case NetObjectType.CLIENT_SERVER_UNREGISTER_SERVER:
+                    opDef.handleUnregisterServerRequest(clientState, recievedNetworkObject);
                     break;
                 case NetObjectType.SERVER_SEND_MATCHMAKE:
+                    opDef.handleMatchmakingRequest(clientState, recievedNetworkObject);
                     break;
             }
+        }
+
+        public static void respondToClient(ServerConnectionStateObject connection, NetworkObject obj)
+        {
+
         }
 
         public byte[] objectToByteArray(object obj)

@@ -1,12 +1,11 @@
 ﻿using System;
 using Matchmaker.Net.Enums;
+using Matchmaker.Net.Configuration;
 
 namespace Matchmaker.Net.Debug
 {
     public static class Logging
     {
-        public static bool MODE_DEBUG = false;
-
         public static void dbgMessage<T>(T data)
         {
             dbgMessage("Data: " + data);
@@ -14,7 +13,7 @@ namespace Matchmaker.Net.Debug
 
         public static void dbgMessage(string message)
         {
-            if (MODE_DEBUG)
+            if (Configuration.Debugging.DEBUG_ENABLED)
             Console.WriteLine(message);
         }
 

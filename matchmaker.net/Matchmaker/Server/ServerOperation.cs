@@ -9,22 +9,16 @@ namespace Matchmaker.Net.Server
 {
     public abstract class ServerOperation
     {
-        ServerConnectionStateObject connectionInformation;
-        NetworkObject recievedObject;
+        public abstract void handleServerListRequest(ServerConnectionStateObject connection, NetworkObject obj);
+        public abstract void handleModifyExistingServerRequest(ServerConnectionStateObject connection, NetworkObject obj);
+        public abstract void handleRegisterNewServer(ServerConnectionStateObject connection, NetworkObject obj);
+        public abstract void handleRespondToClient(ServerConnectionStateObject connection, NetworkObject obj);
+        public abstract void handleMatchmakingRequest(ServerConnectionStateObject connection, NetworkObject obj);
+        public abstract void handleUnregisterServerRequest(ServerConnectionStateObject connection, NetworkObject obj);
 
-        public ServerOperation(ServerConnectionStateObject connection, NetworkObject obj)
+        protected void sendResponse(ServerConnectionStateObject connection, NetworkObject obj)
         {
-            connectionInformation = connection;
-            recievedObject = obj;
+            SocketManager.respondToClient(connection, obj);
         }
-
-        public abstract void handleServerListRequest();
-        public abstract void handleModifyExistingServerRequest();
-        public abstract void handleRegisterNewServer();
-        public abstract void handleRespondToClient();
-        public abstract void handleMatchmakingRequest();
-        public abstract void handleUnregisterServerRequest();
-
-
     }
 }

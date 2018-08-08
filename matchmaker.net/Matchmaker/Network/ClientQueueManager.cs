@@ -7,9 +7,8 @@ using Matchmaker.Net.ServerManager;
 using System.Threading;
 using Matchmaker.Net.Debug;
 using Matchmaker.Net.Enums;
-using Matchmaker.Net.Network;
 
-namespace Matchmaker.Net.Server
+namespace Matchmaker.Net.Network
 {
     public class ClientQueueManager
     {
