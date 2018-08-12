@@ -15,8 +15,6 @@ namespace Matchmaker.Net.Client
 
         public UUID()
         {
-
-
             var ManagmentService = new ManagementObjectSearcher("Select ProcessorId From Win32_processor");
             ManagementObjectCollection mbsList = ManagmentService.Get();
 

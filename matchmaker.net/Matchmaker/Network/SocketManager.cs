@@ -7,30 +7,31 @@ using System.Text;
 using System.Threading.Tasks;
 using Matchmaker.Net.Debug;
 using Matchmaker.Net.Enums;
-using Matchmaker.Net.ServerManager;
 using System.Threading;
 using Matchmaker.Net.Network;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Net.Security;
 using System.IO;
 using Matchmaker.Net.Server;
+using Newtonsoft.Json;
+using Matchmaker.Net.Configuration;
 
 namespace Matchmaker.Net.Network
 {
     public class SocketManager
     {
-        public SocketManager(int port, ServerOperation operationDefinition) { ClientQueueManager queueManager = new ClientQueueManager(this);  BeginListen(port);  opDef = operationDefinition; }
         
         private IPHostEntry ipHostInfo;
         private IPAddress ipAddress;
         private IPEndPoint localEndPoint;
         private Socket connectionSocket;
         private ServerOperation opDef;
-
         public static ManualResetEvent threadFinished = new ManualResetEvent(false);
 
+        public SocketManager(int port, Object operationDefinition) { ClientQueueManager queueManager = new ClientQueueManager(this); BeginListen(port); opDef = (ServerOperation)operationDefinition; }
+
         private void BeginListen(int port)
-        {
+        { 
             ipHostInfo = Dns.GetHostEntry(Dns.GetHostName());
             ipAddress = ipHostInfo.AddressList[1];
             localEndPoint = new IPEndPoint(ipAddress, port);
@@ -76,20 +77,20 @@ namespace Matchmaker.Net.Network
             ServerConnectionStateObject clientState = new ServerConnectionStateObject();
             clientState.workSocket = handler;
 
-            if (ServerManager.ServerManager.clientCanConnect())
+            if (ServerManager.clientCanConnect())
             {
                 Debug.Logging.errlog("Directly handling incoming request", ErrorSeverity.ERROR_INFO);
-                ServerManager.ServerManager.connectClient();
+                ServerManager.connectClient();
                 readAsyncDelayed(ar, clientState);
             }
             else
             {
                 Debug.Logging.errlog("CPU full: offloading incoming request to queue", ErrorSeverity.ERROR_INFO);
-                ServerManager.ServerManager.queuedClients.Enqueue(new DelayedQueueConnection(ar, clientState));
+                ServerManager.queuedClients.Enqueue(new DelayedQueueConnection(ar, clientState));
             }
         }
 
-        public void readAsyncDelayed(IAsyncResult ar, ServerConnectionStateObject clientState)
+        public void readAsyncDelayed(IAsyncResult result, ServerConnectionStateObject clientState)
         {
             try
             {
@@ -101,13 +102,13 @@ namespace Matchmaker.Net.Network
             }
         }
 
-        private void readAsyncBytes(IAsyncResult ar)
+        private void readAsyncBytes(IAsyncResult result)
         {
             try
             {
                 Debug.Logging.errlog("Reading data from socket", ErrorSeverity.ERROR_INFO);
-                ServerConnectionStateObject clientState = (ServerConnectionStateObject)ar.AsyncState;
-                int bytecount = clientState.workSocket.EndReceive(ar);
+                ServerConnectionStateObject clientState = (ServerConnectionStateObject)result.AsyncState;
+                int bytecount = clientState.workSocket.EndReceive(result);
 
                 if(bytecount == 5)
                 {
@@ -116,14 +117,20 @@ namespace Matchmaker.Net.Network
                         string eofCheck = Encoding.ASCII.GetString(clientState.byteBuffer);
                         if (eofCheck.IndexOf("<EOF>") != -1)
                         {
-                            decodeOperation((NetworkObject)ByteArrayToObject(clientState.requestBuffer), clientState);
-                            ServerManager.ServerManager.diconnectClient();
+                            byte[] extractedRecievedData = new byte[clientState.requestBufferPosition];
+                            Array.Copy(clientState.requestBuffer, extractedRecievedData, clientState.requestBufferPosition);
+
+                            NetworkObject recievedObject = JsonConvert.DeserializeObject<NetworkObject>(Encoding.ASCII.GetString(extractedRecievedData));
+                            Console.WriteLine(recievedObject.data);
+
+                            decodeOperation(recievedObject, clientState);
+                            ServerManager.diconnectClient();
                             return;
                         }
                     }
                     catch(Exception e)
                     {
-                        Debug.Logging.errlog("Malformed or incomplete data, object conversion error", ErrorSeverity.ERROR_INFO);
+                        Debug.Logging.errlog("Malformed or incomplete data, object conversion error:\n" + e.StackTrace, ErrorSeverity.ERROR_INFO);
                         return;
                     }
                 }
@@ -139,12 +146,14 @@ namespace Matchmaker.Net.Network
             catch (Exception e)
             {
                 Debug.Logging.errlog("Something went wrong reading from socket:\n" + e.StackTrace, ErrorSeverity.ERROR_WARNING);
-                ServerManager.ServerManager.diconnectClient();
+                ServerManager.diconnectClient();
             }
         }
 
         private void decodeOperation(NetworkObject recievedNetworkObject, ServerConnectionStateObject clientState)
         {
+            //opDef = new ServerOperationDefinitions();
+
             switch(recievedNetworkObject.requestType)
             {
                 case NetObjectType.CLIENT_REQUEST_SERVER_LIST:
@@ -170,28 +179,26 @@ namespace Matchmaker.Net.Network
 
         public static void respondToClient(ServerConnectionStateObject connection, NetworkObject obj)
         {
+            try
+            {
+                byte[] networkObjectBytes = Encoding.ASCII.GetBytes(JsonConvert.SerializeObject(obj));
 
+                connection.workSocket.BeginSend(networkObjectBytes, 0, connection.BUFFER_SIZE, 0,
+                                                new AsyncCallback(clientResponseStatus), connection);
+            }
+            catch (Exception e)
+            {
+                Debug.Logging.errlog("Unable to send client data:\n" + e.StackTrace, ErrorSeverity.ERROR_INFO);
+            }
         }
 
-        public byte[] objectToByteArray(object obj)
+        public static void clientResponseStatus(IAsyncResult result)
         {
-            if (obj == null)
-                return null;
+            Socket connection = (Socket)result.AsyncState;
+            int responseSize = connection.EndSend(result);
 
-            BinaryFormatter bf = new BinaryFormatter();
-            MemoryStream ms = new MemoryStream();
-            bf.Serialize(ms, obj);
-            return ms.ToArray();
-        }
-
-        private Object ByteArrayToObject(byte[] arrBytes)
-        {
-            MemoryStream memStream = new MemoryStream();
-            BinaryFormatter binForm = new BinaryFormatter();
-            memStream.Write(arrBytes, 0, arrBytes.Length);
-            memStream.Seek(0, SeekOrigin.Begin);
-            Object obj = (Object)binForm.Deserialize(memStream);
-            return obj;
+            connection.Shutdown(SocketShutdown.Both);
+            connection.Close();
         }
     }
 }

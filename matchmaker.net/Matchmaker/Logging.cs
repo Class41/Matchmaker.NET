@@ -41,7 +41,42 @@ namespace Matchmaker.Net.Debug
             }
         }
 
-        public static void errlog(string message, ErrorSeverity data)
+        public static void dbgMessageByteArrayRaw<T>(T[] data)
+        {
+            int position = 0;
+            foreach (T value in data)
+            {
+                    dbgMessage(position++ + " : " + value.ToString());
+            }
+        }
+
+        public static void dbgMessageByteArrayDiff<T>(T[] data, T[] data2)
+        {
+            int shortest = -1;
+            if (data.Length == data2.Length)
+            {
+                dbgMessage("Arrays are same size...");
+                shortest = data.Length;
+            }
+            else if (data.Length > data2.Length)
+            {
+                dbgMessage("Input 1 larger than input 2");
+                shortest = data2.Length;
+            }
+            else
+            {
+                dbgMessage("Input 2 larger than input 1");
+                shortest = data.Length;
+            }
+
+            for (int i = 0; i < shortest; i++)
+            {
+                if (data[i].ToString() != data2[i].ToString())
+                    dbgMessage("Difference found at position " + i + " :: " + data[i].ToString() + " vs " + data2[i].ToString());
+            }
+        }
+
+            public static void errlog(string message, ErrorSeverity data)
         {
             switch(data)
             {

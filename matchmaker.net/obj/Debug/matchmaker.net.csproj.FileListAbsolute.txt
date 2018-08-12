@@ -4,3 +4,4 @@ X:\Programming\VS\matchmake .net\matchmaker.net\matchmaker.net\bin\Debug\matchma
 X:\Programming\VS\matchmake .net\matchmaker.net\matchmaker.net\obj\Debug\matchmaker.net.csprojResolveAssemblyReference.cache
 X:\Programming\VS\matchmake .net\matchmaker.net\matchmaker.net\obj\Debug\matchmaker.net.exe
 X:\Programming\VS\matchmake .net\matchmaker.net\matchmaker.net\obj\Debug\matchmaker.net.pdb
+X:\Programming\VS\matchmake .net\matchmaker.net\matchmaker.net\bin\Debug\Newtonsoft.Json.dll

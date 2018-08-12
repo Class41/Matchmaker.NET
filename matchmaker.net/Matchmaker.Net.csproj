@@ -32,6 +32,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>deps\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Management" />
@@ -56,6 +59,7 @@
     <Compile Include="Matchmaker\Network\ClientQueueManager.cs" />
     <Compile Include="Matchmaker\Network\DelayedQueueConnection.cs" />
     <Compile Include="Matchmaker\Network\NetworkObject.cs" />
+    <Compile Include="Matchmaker\Network\Peripheral\SerializeBinder.cs" />
     <Compile Include="Matchmaker\Network\ServerConnectionStateObject.cs" />
     <Compile Include="Matchmaker\Network\SocketManager.cs" />
     <Compile Include="Matchmaker\Server\ServerManager.cs" />
@@ -66,6 +70,8 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="deps\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

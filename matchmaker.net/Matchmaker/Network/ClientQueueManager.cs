@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Matchmaker.Net.ServerManager;
 using System.Threading;
 using Matchmaker.Net.Debug;
 using Matchmaker.Net.Enums;
+using Matchmaker.Net.Server;
 
 namespace Matchmaker.Net.Network
 {
@@ -25,15 +25,15 @@ namespace Matchmaker.Net.Network
         {
             while(true)
             {
-                if(!ServerManager.ServerManager.clientCanConnect() && ServerManager.ServerManager.getOpenSlots() > 0)
+                if(!ServerManager.clientCanConnect() && ServerManager.getOpenSlots() > 0)
                 {
                     Logging.errlog("Releasing clients from connection queue", ErrorSeverity.ERROR_INFO);
 
-                    for (int i = 1; i <= ServerManager.ServerManager.getOpenSlots(); i++)
+                    for (int i = 1; i <= ServerManager.getOpenSlots(); i++)
                     {
-                        DelayedQueueConnection connectionObject = ServerManager.ServerManager.queuedClients.Dequeue();
+                        DelayedQueueConnection connectionObject = ServerManager.queuedClients.Dequeue();
                         socketManager.readAsyncDelayed(connectionObject.ar, connectionObject.clientState);
-                        ServerManager.ServerManager.connectClient();
+                        ServerManager.connectClient();
                     }
                 }
 

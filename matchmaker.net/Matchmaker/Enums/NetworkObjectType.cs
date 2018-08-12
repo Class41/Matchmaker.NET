@@ -1,5 +1,8 @@
-﻿namespace Matchmaker.Net.Enums
+﻿using System;
+
+namespace Matchmaker.Net.Enums
 {
+    [Serializable]
     public enum NetObjectType
     {
         CLIENT_REQUEST_SERVER_LIST,

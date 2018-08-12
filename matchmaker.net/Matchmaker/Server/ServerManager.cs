@@ -7,7 +7,7 @@ using Matchmaker.Net.Client;
 using Matchmaker.Net.Network;
 using Matchmaker.Net.Configuration;
 
-namespace Matchmaker.Net.ServerManager
+namespace Matchmaker.Net.Server
 {
     public static class ServerManager
     {
@@ -39,10 +39,10 @@ namespace Matchmaker.Net.ServerManager
             return Configuration.ServerVariables.MAX_CLIENTS_CONNECTED - currentlyOperatingClients;
         }
 
-        public static void Launch()
+        public static void Launch(Object definedServerOperations)
         {
             Configuration.ServerVariables.IDENTITY = new UUID();
-            SocketManager serverSocket = new SocketManager(Configuration.ServerVariables.PORT, new ServerOperationDefinitions());
+            SocketManager serverSocket = new SocketManager(Configuration.ServerVariables.PORT, definedServerOperations);
         }
     }
 }
