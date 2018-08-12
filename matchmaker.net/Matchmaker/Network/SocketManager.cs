@@ -28,7 +28,13 @@ namespace Matchmaker.Net.Network
         private ServerOperation opDef;
         public static ManualResetEvent threadFinished = new ManualResetEvent(false);
 
-        public SocketManager(int port, Object operationDefinition) { ClientQueueManager queueManager = new ClientQueueManager(this); BeginListen(port); opDef = (ServerOperation)operationDefinition; }
+        public SocketManager(int port, ServerOperation operationDefinition)
+        {
+            ClientQueueManager queueManager = new ClientQueueManager(this);
+            opDef = operationDefinition;
+
+            BeginListen(port);
+        }
 
         private void BeginListen(int port)
         { 

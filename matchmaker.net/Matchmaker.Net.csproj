@@ -51,7 +51,8 @@
     <Compile Include="Matchmaker\Client\User.cs" />
     <Compile Include="Matchmaker\Client\UUID.cs" />
     <Compile Include="Matchmaker\Config\Configuration.cs" />
-    <Compile Include="Matchmaker\Config\ServerOperationDefinitions.cs" />
+    <Compile Include="Matchmaker\Config\ServerOperationDefinitionsTemplate.cs" />
+    <Compile Include="Matchmaker\Config\ServerOperationDefinitionsSample.cs" />
     <Compile Include="Matchmaker\Enums\NetworkObjectType.cs" />
     <Compile Include="Matchmaker\Logging.cs" />
     <Compile Include="Matchmaker\Enums\ErrorSeverity.cs" />

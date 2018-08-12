@@ -39,8 +39,9 @@ namespace Matchmaker.Net.Server
             return Configuration.ServerVariables.MAX_CLIENTS_CONNECTED - currentlyOperatingClients;
         }
 
-        public static void Launch(Object definedServerOperations)
+        public static void Launch(ServerOperation definedServerOperations)
         {
+            Console.WriteLine(definedServerOperations);
             Configuration.ServerVariables.IDENTITY = new UUID();
             SocketManager serverSocket = new SocketManager(Configuration.ServerVariables.PORT, definedServerOperations);
         }
