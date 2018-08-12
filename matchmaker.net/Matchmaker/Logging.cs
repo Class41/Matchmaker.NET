@@ -1,9 +1,18 @@
 ﻿using System;
 using Matchmaker.Net.Enums;
 using Matchmaker.Net.Configuration;
+using Matchmaker.Net.Network;
 
 namespace Matchmaker.Net.Debug
 {
+    public static class Utils
+    {
+        public static string connectionInfo(ServerConnectionStateObject clientState)
+        {
+            return "(" + clientState.endpointIP + ":" + clientState.endpointPort + ") ";
+        }
+    }
+
     public static class Logging
     {
         public static void dbgMessage<T>(T data)

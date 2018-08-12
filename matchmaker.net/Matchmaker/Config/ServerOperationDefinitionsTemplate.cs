@@ -10,10 +10,6 @@ namespace Matchmaker.Net.Configuration
 {
     public class ServerOperationDefinitions : ServerOperation
     {
-        public void test()
-        {
-            Console.WriteLine("Completed test");
-        }
 
         //Called when client makes a matchmaking request
         public override void handleMatchmakingRequest(ServerConnectionStateObject connection, NetworkObject recievedObj)

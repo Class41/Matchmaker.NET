@@ -56,7 +56,6 @@
     <Compile Include="Matchmaker\Enums\NetworkObjectType.cs" />
     <Compile Include="Matchmaker\Logging.cs" />
     <Compile Include="Matchmaker\Enums\ErrorSeverity.cs" />
-    <Compile Include="Matchmaker\Enums\UserConnectionStatus.cs" />
     <Compile Include="Matchmaker\Network\ClientQueueManager.cs" />
     <Compile Include="Matchmaker\Network\DelayedQueueConnection.cs" />
     <Compile Include="Matchmaker\Network\NetworkObject.cs" />

@@ -10,10 +10,6 @@ namespace Matchmaker.Net.Configuration.Sample
 {
     public class ServerOperationDefinitionsSample : ServerOperation
     {
-        public void test()
-        {
-            Console.WriteLine("Completed test");
-        }
 
         //Called when client makes a matchmaking request
         public override void handleMatchmakingRequest(ServerConnectionStateObject connection, NetworkObject recievedObj)
@@ -43,7 +39,7 @@ namespace Matchmaker.Net.Configuration.Sample
         public override void handleRespondToClient(ServerConnectionStateObject connection, NetworkObject recievedObj)
         {
            NetworkObject response = new NetworkObject(recievedObj.requestType);
-           throw new NotImplementedException(); //remove this and replace with functionality
+           //throw new NotImplementedException(); //remove this and replace with functionality
            sendResponse(connection, response);
         }
 

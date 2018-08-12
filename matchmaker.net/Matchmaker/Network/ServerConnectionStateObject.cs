@@ -10,14 +10,15 @@ namespace Matchmaker.Net.Network
     public class ServerConnectionStateObject
     {
         public Socket workSocket = null;
-        public int BUFFER_SIZE = 2048, requestBufferPosition = 0;
+        public int requestBufferPosition = 0;
         public byte[] byteBuffer, requestBuffer;
         public StringBuilder data = new StringBuilder();
+        public string endpointIP, endpointPort;
 
         public ServerConnectionStateObject()
         {
-            byteBuffer = new Byte[BUFFER_SIZE];
-            requestBuffer = new Byte[BUFFER_SIZE];
+            byteBuffer = new Byte[Configuration.ServerVariables.BUFFER_SIZE];
+            requestBuffer = new Byte[Configuration.ServerVariables.BUFFER_SIZE];
         }
     }
 }

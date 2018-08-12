@@ -55,7 +55,8 @@ namespace Matchmaker.Net.Network
             }
             catch (Exception e)
             {
-                Debug.Logging.errlog("Cannot bind to port:\n" + e.StackTrace, ErrorSeverity.ERROR_CRITICAL_FAILURE);
+                Debug.Logging.errlog("Cannot bind to port:\n" + e.Message + "\n" + e.StackTrace, ErrorSeverity.ERROR_CRITICAL_FAILURE);
+                return;
             }
 
             serverAsyncListen();
@@ -74,7 +75,6 @@ namespace Matchmaker.Net.Network
 
         private void HandleIncomingConnection(IAsyncResult ar)
         {
-            Debug.Logging.errlog("Handling incoming connection request", ErrorSeverity.ERROR_INFO);
             threadFinished.Set();
 
             Socket listener = (Socket) ar.AsyncState,
@@ -83,15 +83,21 @@ namespace Matchmaker.Net.Network
             ServerConnectionStateObject clientState = new ServerConnectionStateObject();
             clientState.workSocket = handler;
 
+            IPEndPoint remoteIP = (IPEndPoint)handler.RemoteEndPoint;
+            clientState.endpointIP = remoteIP.Address.ToString();
+            clientState.endpointPort = remoteIP.Port.ToString();
+
+            Debug.Logging.errlog(Utils.connectionInfo(clientState) +"Handling incoming connection request", ErrorSeverity.ERROR_INFO);
+
             if (ServerManager.clientCanConnect())
             {
-                Debug.Logging.errlog("Directly handling incoming request", ErrorSeverity.ERROR_INFO);
+                Debug.Logging.errlog(Utils.connectionInfo(clientState) + "Directly handling incoming request", ErrorSeverity.ERROR_INFO);
                 ServerManager.connectClient();
                 readAsyncDelayed(ar, clientState);
             }
             else
             {
-                Debug.Logging.errlog("CPU full: offloading incoming request to queue", ErrorSeverity.ERROR_INFO);
+                Debug.Logging.errlog(Utils.connectionInfo(clientState) + "CPU full: offloading incoming request to queue", ErrorSeverity.ERROR_INFO);
                 ServerManager.queuedClients.Enqueue(new DelayedQueueConnection(ar, clientState));
             }
         }
@@ -100,12 +106,13 @@ namespace Matchmaker.Net.Network
         {
             try
             {
-                clientState.workSocket.BeginReceive(clientState.byteBuffer, 0, clientState.BUFFER_SIZE, SocketFlags.None, new AsyncCallback(readAsyncBytes), clientState);
+                clientState.workSocket.BeginReceive(clientState.byteBuffer, 0, Configuration.ServerVariables.BUFFER_SIZE, SocketFlags.None, new AsyncCallback(readAsyncBytes), clientState);
             }
             catch(Exception e)
             {
-                Debug.Logging.errlog("Socket read failure:\n" + e.StackTrace, ErrorSeverity.ERROR_INFO);
+                Debug.Logging.errlog(Utils.connectionInfo(clientState) + "Socket read failure:\n" + e.Message + "\n" + e.StackTrace, ErrorSeverity.ERROR_INFO);
                 shutdownAndCloseSocket(clientState);
+                return;
             }
         }
 
@@ -114,7 +121,7 @@ namespace Matchmaker.Net.Network
             ServerConnectionStateObject clientState = (ServerConnectionStateObject)result.AsyncState;
             try
             {
-                Debug.Logging.errlog("Reading data from socket", ErrorSeverity.ERROR_INFO);
+                Debug.Logging.errlog(Utils.connectionInfo(clientState) + "Reading data from socket", ErrorSeverity.ERROR_INFO);
                 int bytecount = clientState.workSocket.EndReceive(result);
 
                 if(bytecount == 5)
@@ -128,58 +135,66 @@ namespace Matchmaker.Net.Network
                             Array.Copy(clientState.requestBuffer, extractedRecievedData, clientState.requestBufferPosition);
 
                             NetworkObject recievedObject = JsonConvert.DeserializeObject<NetworkObject>(Encoding.ASCII.GetString(extractedRecievedData));
-                            Console.WriteLine(recievedObject.data);
-
+                            Logging.errlog(recievedObject.data, ErrorSeverity.ERROR_INFO);
                             decodeOperation(recievedObject, clientState);
-                            ServerManager.diconnectClient();
                             return;
                         }
                     }
                     catch(Exception e)
                     {
-                        Debug.Logging.errlog("Malformed or incomplete data, object conversion error:\n" + e.StackTrace, ErrorSeverity.ERROR_INFO);
+                        Debug.Logging.errlog(Utils.connectionInfo(clientState) + "Malformed or incomplete data, object conversion error:\n" + e.Message + "\n" + e.StackTrace, ErrorSeverity.ERROR_INFO);
                         shutdownAndCloseSocket(clientState);
                         return;
                     }
                 }
 
                 Array.ConstrainedCopy(clientState.byteBuffer, 0, clientState.requestBuffer, clientState.requestBufferPosition, bytecount);
-                Array.Clear(clientState.byteBuffer, 0, clientState.BUFFER_SIZE);
+                Array.Clear(clientState.byteBuffer, 0, Configuration.ServerVariables.BUFFER_SIZE);
                 clientState.requestBufferPosition += bytecount;
-                Debug.Logging.errlog("Recieved " + bytecount + " bytes (" + clientState.requestBufferPosition + " total bytes stored in instance)", ErrorSeverity.ERROR_INFO);
+                Debug.Logging.errlog(Utils.connectionInfo(clientState) + "Recieved " + bytecount + " bytes (" + clientState.requestBufferPosition + " total bytes stored in instance)", ErrorSeverity.ERROR_INFO);
                 Debug.Logging.dbgMessageByteArray<byte>(clientState.requestBuffer);
 
-                clientState.workSocket.BeginReceive(clientState.byteBuffer, 0, clientState.BUFFER_SIZE, SocketFlags.None, new AsyncCallback(readAsyncBytes), clientState);
+                clientState.workSocket.BeginReceive(clientState.byteBuffer, 0, Configuration.ServerVariables.BUFFER_SIZE, SocketFlags.None, new AsyncCallback(readAsyncBytes), clientState);
             }
             catch (Exception e)
             {
-                Debug.Logging.errlog("Something went wrong reading from socket:\n" + e.StackTrace, ErrorSeverity.ERROR_WARNING);
+                Debug.Logging.errlog(Utils.connectionInfo(clientState) + "Something went wrong reading from socket:\n" + e.Message + "\n" + e.StackTrace, ErrorSeverity.ERROR_WARNING);
                 shutdownAndCloseSocket(clientState);
+                return;
             }
         }
 
         private void decodeOperation(NetworkObject recievedNetworkObject, ServerConnectionStateObject clientState)
         {
-            switch(recievedNetworkObject.requestType)
+            try
             {
-                case NetObjectType.CLIENT_REQUEST_SERVER_LIST:
-                    opDef.handleServerListRequest(clientState, recievedNetworkObject);
-                    break;
-                case NetObjectType.CLIENT_SERVER_MODIFY_REGISTERED_SERVER:
-                    opDef.handleModifyExistingServerRequest(clientState, recievedNetworkObject);
-                    break;
-                case NetObjectType.CLIENT_SERVER_REGISTER_SERVER:
-                    opDef.handleRegisterNewServer(clientState, recievedNetworkObject);
-                    break;
-                case NetObjectType.CLIENT_SERVER_RESPONSE_GENERIC:
-                    opDef.handleRespondToClient(clientState, recievedNetworkObject);
-                    break;
-                case NetObjectType.CLIENT_SERVER_UNREGISTER_SERVER:
-                    opDef.handleUnregisterServerRequest(clientState, recievedNetworkObject);
-                    break;
-                case NetObjectType.SERVER_SEND_MATCHMAKE:
-                    opDef.handleMatchmakingRequest(clientState, recievedNetworkObject);
-                    break;
+                switch (recievedNetworkObject.requestType)
+                {
+                    case NetObjectType.CLIENT_REQUEST_SERVER_LIST:
+                        opDef.handleServerListRequest(clientState, recievedNetworkObject);
+                        break;
+                    case NetObjectType.CLIENT_SERVER_MODIFY_REGISTERED_SERVER:
+                        opDef.handleModifyExistingServerRequest(clientState, recievedNetworkObject);
+                        break;
+                    case NetObjectType.CLIENT_SERVER_REGISTER_SERVER:
+                        opDef.handleRegisterNewServer(clientState, recievedNetworkObject);
+                        break;
+                    case NetObjectType.CLIENT_SERVER_RESPONSE_GENERIC:
+                        opDef.handleRespondToClient(clientState, recievedNetworkObject);
+                        break;
+                    case NetObjectType.CLIENT_SERVER_UNREGISTER_SERVER:
+                        opDef.handleUnregisterServerRequest(clientState, recievedNetworkObject);
+                        break;
+                    case NetObjectType.SERVER_SEND_MATCHMAKE:
+                        opDef.handleMatchmakingRequest(clientState, recievedNetworkObject);
+                        break;
+                }
+            }
+            catch(Exception e)
+            {
+                Debug.Logging.errlog(Utils.connectionInfo(clientState) + "Something went wrong when reading data!\n" + e.Message + "\n" + e.StackTrace, ErrorSeverity.ERROR_INFO);
+                shutdownAndCloseSocket(clientState);
+                return;
             }
         }
 
@@ -189,22 +204,31 @@ namespace Matchmaker.Net.Network
             {
                 byte[] networkObjectBytes = Encoding.ASCII.GetBytes(JsonConvert.SerializeObject(obj));
 
-                clientState.workSocket.BeginSend(networkObjectBytes, 0, clientState.BUFFER_SIZE, 0,
+                clientState.workSocket.BeginSend(networkObjectBytes, 0, Configuration.ServerVariables.BUFFER_SIZE, 0,
                                                 new AsyncCallback(clientResponseStatus), clientState);
             }
             catch (Exception e)
             {
-                Debug.Logging.errlog("Unable to send client data:\n" + e.StackTrace, ErrorSeverity.ERROR_INFO);
+                Debug.Logging.errlog(Utils.connectionInfo(clientState) + "Unable to send client data:\n" + e.Message + "\n" + e.StackTrace, ErrorSeverity.ERROR_INFO);
                 shutdownAndCloseSocket(clientState);
+                return;
             }
         }
 
         public static void clientResponseStatus(IAsyncResult result)
         {
             ServerConnectionStateObject clientState = (ServerConnectionStateObject)result.AsyncState;
-            int responseSize = clientState.workSocket.EndSend(result);
-            Debug.Logging.errlog("Sent data to client:" + responseSize + " Bytes.", ErrorSeverity.ERROR_INFO);
-            shutdownAndCloseSocket(clientState);
+            try
+            {
+                int responseSize = clientState.workSocket.EndSend(result);
+                Debug.Logging.errlog(Utils.connectionInfo(clientState) + "Sent data to client:" + responseSize + " Bytes.", ErrorSeverity.ERROR_INFO);
+            }
+            catch (Exception e)
+            {
+                Debug.Logging.errlog(Utils.connectionInfo(clientState) + "Unable to send client data:\n" + e.Message + "\n" + e.StackTrace, ErrorSeverity.ERROR_INFO);
+                shutdownAndCloseSocket(clientState);
+                return;
+            }
         }
 
         public static void shutdownAndCloseSocket(ServerConnectionStateObject clientState)
@@ -224,7 +248,8 @@ namespace Matchmaker.Net.Network
             }
             catch (Exception e)
             {
-                Debug.Logging.errlog("Failed to shutdown client:\n" + e.StackTrace, ErrorSeverity.ERROR_INFO);
+                Debug.Logging.errlog(Utils.connectionInfo(clientState) + "Failed to shutdown client:\n" + e.Message + "\n" + e.StackTrace, ErrorSeverity.ERROR_INFO);
+                return;
             }
         }
     }
