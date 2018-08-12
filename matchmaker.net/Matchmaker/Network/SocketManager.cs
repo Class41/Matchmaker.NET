@@ -105,15 +105,16 @@ namespace Matchmaker.Net.Network
             catch(Exception e)
             {
                 Debug.Logging.errlog("Socket read failure:\n" + e.StackTrace, ErrorSeverity.ERROR_INFO);
+                shutdownAndCloseSocket(clientState);
             }
         }
 
         private void readAsyncBytes(IAsyncResult result)
         {
+            ServerConnectionStateObject clientState = (ServerConnectionStateObject)result.AsyncState;
             try
             {
                 Debug.Logging.errlog("Reading data from socket", ErrorSeverity.ERROR_INFO);
-                ServerConnectionStateObject clientState = (ServerConnectionStateObject)result.AsyncState;
                 int bytecount = clientState.workSocket.EndReceive(result);
 
                 if(bytecount == 5)
@@ -137,6 +138,7 @@ namespace Matchmaker.Net.Network
                     catch(Exception e)
                     {
                         Debug.Logging.errlog("Malformed or incomplete data, object conversion error:\n" + e.StackTrace, ErrorSeverity.ERROR_INFO);
+                        shutdownAndCloseSocket(clientState);
                         return;
                     }
                 }
@@ -152,14 +154,12 @@ namespace Matchmaker.Net.Network
             catch (Exception e)
             {
                 Debug.Logging.errlog("Something went wrong reading from socket:\n" + e.StackTrace, ErrorSeverity.ERROR_WARNING);
-                ServerManager.diconnectClient();
+                shutdownAndCloseSocket(clientState);
             }
         }
 
         private void decodeOperation(NetworkObject recievedNetworkObject, ServerConnectionStateObject clientState)
         {
-            //opDef = new ServerOperationDefinitions();
-
             switch(recievedNetworkObject.requestType)
             {
                 case NetObjectType.CLIENT_REQUEST_SERVER_LIST:
@@ -183,28 +183,49 @@ namespace Matchmaker.Net.Network
             }
         }
 
-        public static void respondToClient(ServerConnectionStateObject connection, NetworkObject obj)
+        public static void respondToClient(ServerConnectionStateObject clientState, NetworkObject obj)
         {
             try
             {
                 byte[] networkObjectBytes = Encoding.ASCII.GetBytes(JsonConvert.SerializeObject(obj));
 
-                connection.workSocket.BeginSend(networkObjectBytes, 0, connection.BUFFER_SIZE, 0,
-                                                new AsyncCallback(clientResponseStatus), connection);
+                clientState.workSocket.BeginSend(networkObjectBytes, 0, clientState.BUFFER_SIZE, 0,
+                                                new AsyncCallback(clientResponseStatus), clientState);
             }
             catch (Exception e)
             {
                 Debug.Logging.errlog("Unable to send client data:\n" + e.StackTrace, ErrorSeverity.ERROR_INFO);
+                shutdownAndCloseSocket(clientState);
             }
         }
 
         public static void clientResponseStatus(IAsyncResult result)
         {
-            Socket connection = (Socket)result.AsyncState;
-            int responseSize = connection.EndSend(result);
+            ServerConnectionStateObject clientState = (ServerConnectionStateObject)result.AsyncState;
+            int responseSize = clientState.workSocket.EndSend(result);
+            Debug.Logging.errlog("Sent data to client:" + responseSize + " Bytes.", ErrorSeverity.ERROR_INFO);
+            shutdownAndCloseSocket(clientState);
+        }
 
-            connection.Shutdown(SocketShutdown.Both);
-            connection.Close();
+        public static void shutdownAndCloseSocket(ServerConnectionStateObject clientState)
+        {
+            try
+            {
+                if (clientState.workSocket.Connected)
+                {
+                    ServerManager.diconnectClient();
+                    clientState.workSocket.Shutdown(SocketShutdown.Both);
+                    clientState.workSocket.Close();
+                }
+                else
+                {
+                    ServerManager.diconnectClient();
+                }
+            }
+            catch (Exception e)
+            {
+                Debug.Logging.errlog("Failed to shutdown client:\n" + e.StackTrace, ErrorSeverity.ERROR_INFO);
+            }
         }
     }
 }

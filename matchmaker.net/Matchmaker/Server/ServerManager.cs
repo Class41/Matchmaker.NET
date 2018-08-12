@@ -41,7 +41,6 @@ namespace Matchmaker.Net.Server
 
         public static void Launch(ServerOperation definedServerOperations)
         {
-            Console.WriteLine(definedServerOperations);
             Configuration.ServerVariables.IDENTITY = new UUID();
             SocketManager serverSocket = new SocketManager(Configuration.ServerVariables.PORT, definedServerOperations);
         }

@@ -6,9 +6,9 @@ using System.Text;
 using System.Threading.Tasks;
 using Matchmaker.Net.Network;
 
-namespace Matchmaker.Net.Configuration
+namespace Matchmaker.Net.Configuration.Sample
 {
-    public class ServerOperationDefinitions : ServerOperation
+    public class ServerOperationDefinitionsSample : ServerOperation
     {
         public void test()
         {
