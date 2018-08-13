@@ -12,31 +12,31 @@ namespace Matchmaker.Net.Server
     public static class ServerManager
     {
         public static Queue<DelayedQueueConnection> queuedClients = new Queue<DelayedQueueConnection>();
-        private static int currentlyOperatingClients = 0;
+        private static int _currentlyOperatingClients = 0;
 
-        public static bool clientCanConnect()
+        public static bool ClientCanConnect()
         {
-            if (((currentlyOperatingClients < Configuration.ServerVariables.MAX_CLIENTS_CONNECTED) && queuedClients.Count == 0)  || Configuration.ServerVariables.MAX_CLIENTS_CONNECTED < 0)
+            if (((_currentlyOperatingClients < Configuration.ServerVariables.MAX_CLIENTS_CONNECTED) && queuedClients.Count == 0)  || Configuration.ServerVariables.MAX_CLIENTS_CONNECTED < 0)
                 return true;
             else
                 return false;
         }
 
-        public static void connectClient()
+        public static void ConnectClient()
         {
-            currentlyOperatingClients++;
-            Logging.errlog("Active clients updated: " + currentlyOperatingClients + "/" + Configuration.ServerVariables.MAX_CLIENTS_CONNECTED, ErrorSeverity.ERROR_INFO);
+            _currentlyOperatingClients++;
+            Logging.errlog("Active clients updated: " + _currentlyOperatingClients + "/" + Configuration.ServerVariables.MAX_CLIENTS_CONNECTED, ErrorSeverity.ERROR_INFO);
         }
 
-        public static void diconnectClient()
+        public static void DiconnectClient()
         {
-            currentlyOperatingClients--;
-            Logging.errlog("Active clients updated: " + currentlyOperatingClients + "/" + Configuration.ServerVariables.MAX_CLIENTS_CONNECTED, ErrorSeverity.ERROR_INFO);
+            _currentlyOperatingClients--;
+            Logging.errlog("Active clients updated: " + _currentlyOperatingClients + "/" + Configuration.ServerVariables.MAX_CLIENTS_CONNECTED, ErrorSeverity.ERROR_INFO);
         }
 
-        public static int getOpenSlots()
+        public static int GetOpenSlots()
         {
-            return Configuration.ServerVariables.MAX_CLIENTS_CONNECTED - currentlyOperatingClients;
+            return Configuration.ServerVariables.MAX_CLIENTS_CONNECTED - _currentlyOperatingClients;
         }
 
         public static void Launch(ServerOperation definedServerOperations)

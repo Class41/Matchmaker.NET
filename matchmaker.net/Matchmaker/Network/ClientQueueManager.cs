@@ -12,28 +12,28 @@ namespace Matchmaker.Net.Network
 {
     public class ClientQueueManager
     {
-        SocketManager socketManager;
+        private SocketManager _socketManager;
 
        public ClientQueueManager(SocketManager sockMgr)
         {
-            this.socketManager = sockMgr;
-            Thread asyncQueue = new Thread(beginManager);
+            this._socketManager = sockMgr;
+            Thread asyncQueue = new Thread(BeginManager);
             asyncQueue.Start();
         }
 
-        private void beginManager()
+        private void BeginManager()
         {
             while(true)
             {
-                if(!ServerManager.clientCanConnect() && ServerManager.getOpenSlots() > 0)
+                if(!ServerManager.ClientCanConnect() && ServerManager.GetOpenSlots() > 0)
                 {
                     Logging.errlog("Releasing clients from connection queue", ErrorSeverity.ERROR_INFO);
 
-                    for (int i = 1; i <= ServerManager.getOpenSlots(); i++)
+                    for (int i = 1; i <= ServerManager.GetOpenSlots(); i++)
                     {
                         DelayedQueueConnection connectionObject = ServerManager.queuedClients.Dequeue();
-                        socketManager.readAsyncDelayed(connectionObject.ar, connectionObject.clientState);
-                        ServerManager.connectClient();
+                        _socketManager.ReadAsyncDelayed(connectionObject.ar, connectionObject.clientState);
+                        ServerManager.ConnectClient();
                     }
                 }
 

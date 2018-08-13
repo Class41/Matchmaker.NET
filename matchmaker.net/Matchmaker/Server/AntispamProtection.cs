@@ -11,28 +11,28 @@ namespace Matchmaker.Net.Server
 {
     public static class AntispamProtection
     {
-        private static Dictionary<string, int> malformUsers = new Dictionary<string, int>();
+        private static Dictionary<string, int> _malformUsers = new Dictionary<string, int>();
 
-        public static void listSpamUser()
+        public static void ListSpamUser()
         {
             Logging.dbgMessage("<SpamList>");
-            foreach (var x in malformUsers)
+            foreach (var x in _malformUsers)
                 Logging.dbgMessage(String.Format(":: [Banned] ip {0} with malcount {2}", x.Key, x.Value));
             Logging.dbgMessage("</SpamList>");
         }
 
-        public static void clearSpamUser()
+        public static void ClearSpamUser()
         {
-            malformUsers.Clear();
+            _malformUsers.Clear();
         }
 
-        public static bool checkUser(string ip)
+        public static bool CheckUser(string ip)
         {
-            if (malformUsers.ContainsKey(ip))
+            if (_malformUsers.ContainsKey(ip))
             {
-                if(malformUsers[ip] > Configuration.SpamProtection.FAILED_ATTEMPT_COUNT)
+                if(_malformUsers[ip] > Configuration.SpamProtection.FAILED_ATTEMPT_COUNT)
                 {
-                    Debug.Logging.errlog("User " + ip + "denied acceess due to repeated malformed data. ("+ malformUsers[ip]+ " failures)", Enums.ErrorSeverity.ERROR_INFO);
+                    Debug.Logging.errlog("User " + ip + "denied acceess due to repeated malformed data. ("+ _malformUsers[ip]+ " failures)", Enums.ErrorSeverity.ERROR_INFO);
                     return false;
                 }
 
@@ -42,21 +42,21 @@ namespace Matchmaker.Net.Server
             return true;
         }
 
-        public static void markForMaloformedData(string ip)
+        public static void MarkForMaloformedData(string ip)
         {
-            if (malformUsers.ContainsKey(ip))
+            if (_malformUsers.ContainsKey(ip))
             {
-                malformUsers[ip]++;
+                _malformUsers[ip]++;
             }
             else
             {
-                malformUsers.Add(ip, 1);
+                _malformUsers.Add(ip, 1);
             }
         }
 
-        public static void clearBanUser()
+        public static void ClearBanUser()
         {
-            malformUsers.Clear();
+            _malformUsers.Clear();
         }
     }
 }

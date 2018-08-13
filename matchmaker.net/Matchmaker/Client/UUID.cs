@@ -10,8 +10,8 @@ namespace Matchmaker.Net.Client
 {
     public class UUID
     {
-        private string UNIQUE_IDENTITY;
-        private string HWID;
+        private string _UNIQUE_IDENTITY;
+        private string _HWID;
 
         public UUID()
         {
@@ -25,7 +25,7 @@ namespace Matchmaker.Net.Client
                 break;
             }
 
-            HWID = CPUid;
+            _HWID = CPUid;
 
             MD5 hashGenerator = MD5.Create();
 
@@ -42,17 +42,17 @@ namespace Matchmaker.Net.Client
 
             }
 
-            UNIQUE_IDENTITY = sb.ToString();
+            _UNIQUE_IDENTITY = sb.ToString();
         }
 
-        public string getHWID()
+        public string GetHWID()
         {
-            return HWID;
+            return _HWID;
         }
 
-        public string getUUID()
+        public string GetUUID()
         {
-            return UNIQUE_IDENTITY;
+            return _UNIQUE_IDENTITY;
         }
 
     }

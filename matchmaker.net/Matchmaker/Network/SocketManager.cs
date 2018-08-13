@@ -21,37 +21,37 @@ namespace Matchmaker.Net.Network
     public class SocketManager
     {
         
-        private IPHostEntry ipHostInfo;
-        private IPAddress ipAddress;
-        private IPEndPoint localEndPoint;
-        private Socket connectionSocket;
-        private ServerOperation opDef;
+        private IPHostEntry _ipHostInfo;
+        private IPAddress _ipAddress;
+        private IPEndPoint _localEndPoint;
+        private Socket _connectionSocket;
+        private ServerOperation _opDef;
         public static ManualResetEvent threadFinished = new ManualResetEvent(false);
 
         public SocketManager(int port, ServerOperation operationDefinition)
         {
             ClientQueueManager queueManager = new ClientQueueManager(this);
-            opDef = operationDefinition;
+            _opDef = operationDefinition;
 
             BeginListen(port);
         }
 
         private void BeginListen(int port)
         { 
-            ipHostInfo = Dns.GetHostEntry(Dns.GetHostName());
-            ipAddress = ipHostInfo.AddressList[1];
-            localEndPoint = new IPEndPoint(ipAddress, port);
-            connectionSocket = new Socket(ipAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+            _ipHostInfo = Dns.GetHostEntry(Dns.GetHostName());
+            _ipAddress = _ipHostInfo.AddressList[1];
+            _localEndPoint = new IPEndPoint(_ipAddress, port);
+            _connectionSocket = new Socket(_ipAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
 
-            bindToPort();
+            BindToPort();
         }
 
-        private void bindToPort()
+        private void BindToPort()
         {
             try
             {
-                connectionSocket.Bind(localEndPoint);
-                connectionSocket.Listen(50);
+                _connectionSocket.Bind(_localEndPoint);
+                _connectionSocket.Listen(50);
             }
             catch (Exception e)
             {
@@ -59,16 +59,16 @@ namespace Matchmaker.Net.Network
                 return;
             }
 
-            serverAsyncListen();
+            ServerAsyncListen();
         }
 
-        private void serverAsyncListen()
+        private void ServerAsyncListen()
         {
             Debug.Logging.errlog("Starting async listen on specified port", ErrorSeverity.ERROR_INFO);
             while (true)
             {
                 threadFinished.Reset();
-                connectionSocket.BeginAccept(new AsyncCallback(HandleIncomingConnection), connectionSocket);
+                _connectionSocket.BeginAccept(new AsyncCallback(HandleIncomingConnection), _connectionSocket);
                 threadFinished.WaitOne();
             }
         }
@@ -88,16 +88,16 @@ namespace Matchmaker.Net.Network
             clientState.endpointPort = remoteIP.Port.ToString();
 
             if (Configuration.SpamProtection.SPAM_PROTECTION_ENABLED)
-                if (!AntispamProtection.checkUser(clientState.endpointIP))
+                if (!AntispamProtection.CheckUser(clientState.endpointIP))
                     return;
 
 
             Debug.Logging.errlog(Utils.connectionInfo(clientState) +"Handling incoming connection request", ErrorSeverity.ERROR_INFO);
 
-            if (ServerManager.clientCanConnect())
+            if (ServerManager.ClientCanConnect())
             {
-                ServerManager.connectClient();
-                readAsyncDelayed(ar, clientState);
+                ServerManager.ConnectClient();
+                ReadAsyncDelayed(ar, clientState);
             }
             else
             {
@@ -106,21 +106,21 @@ namespace Matchmaker.Net.Network
             }
         }
 
-        public void readAsyncDelayed(IAsyncResult result, ServerConnectionStateObject clientState)
+        public void ReadAsyncDelayed(IAsyncResult result, ServerConnectionStateObject clientState)
         {
             try
             {
-                clientState.workSocket.BeginReceive(clientState.byteBuffer, 0, Configuration.ServerVariables.BUFFER_SIZE, SocketFlags.None, new AsyncCallback(readAsyncBytes), clientState);
+                clientState.workSocket.BeginReceive(clientState.byteBuffer, 0, Configuration.ServerVariables.BUFFER_SIZE, SocketFlags.None, new AsyncCallback(ReadAsyncBytes), clientState);
             }
             catch(Exception e)
             {
                 Debug.Logging.errlog(Utils.connectionInfo(clientState) + "Socket read failure:\n" + e.Message + "\n" + e.StackTrace, ErrorSeverity.ERROR_INFO);
-                shutdownAndCloseSocket(clientState);
+                ShutdownAndCloseSocket(clientState);
                 return;
             }
         }
 
-        private void readAsyncBytes(IAsyncResult result)
+        private void ReadAsyncBytes(IAsyncResult result)
         {
             ServerConnectionStateObject clientState = (ServerConnectionStateObject)result.AsyncState;
             try
@@ -140,7 +140,7 @@ namespace Matchmaker.Net.Network
 
                             NetworkObject recievedObject = JsonConvert.DeserializeObject<NetworkObject>(Encoding.ASCII.GetString(extractedRecievedData));
                             Logging.errlog(recievedObject.data, ErrorSeverity.ERROR_INFO);
-                            decodeOperation(recievedObject, clientState);
+                            DecodeOperation(recievedObject, clientState);
                             return;
                         }
                     }
@@ -149,9 +149,9 @@ namespace Matchmaker.Net.Network
                         Debug.Logging.errlog(Utils.connectionInfo(clientState) + "Malformed or incomplete data, object conversion error:\n" + e.Message + "\n" + e.StackTrace, ErrorSeverity.ERROR_INFO);
 
                         if(Configuration.SpamProtection.SPAM_PROTECTION_ENABLED)
-                            AntispamProtection.markForMaloformedData(clientState.endpointIP);
+                            AntispamProtection.MarkForMaloformedData(clientState.endpointIP);
 
-                        shutdownAndCloseSocket(clientState);
+                        ShutdownAndCloseSocket(clientState);
                         return;
                     }
                 }
@@ -162,68 +162,68 @@ namespace Matchmaker.Net.Network
                 Debug.Logging.errlog(Utils.connectionInfo(clientState) + "Recieved " + bytecount + " bytes (" + clientState.requestBufferPosition + " total bytes stored in instance)", ErrorSeverity.ERROR_INFO);
                 Debug.Logging.dbgMessageByteArray<byte>(clientState.requestBuffer);
 
-                clientState.workSocket.BeginReceive(clientState.byteBuffer, 0, Configuration.ServerVariables.BUFFER_SIZE, SocketFlags.None, new AsyncCallback(readAsyncBytes), clientState);
+                clientState.workSocket.BeginReceive(clientState.byteBuffer, 0, Configuration.ServerVariables.BUFFER_SIZE, SocketFlags.None, new AsyncCallback(ReadAsyncBytes), clientState);
             }
             catch (Exception e)
             {
                 Debug.Logging.errlog(Utils.connectionInfo(clientState) + "Something went wrong reading from socket:\n" + e.Message + "\n" + e.StackTrace, ErrorSeverity.ERROR_WARNING);
-                shutdownAndCloseSocket(clientState);
+                ShutdownAndCloseSocket(clientState);
                 return;
             }
         }
 
-        private void decodeOperation(NetworkObject recievedNetworkObject, ServerConnectionStateObject clientState)
+        private void DecodeOperation(NetworkObject recievedNetworkObject, ServerConnectionStateObject clientState)
         {
             try
             {
                 switch (recievedNetworkObject.requestType)
                 {
                     case NetObjectType.CLIENT_REQUEST_SERVER_LIST:
-                        opDef.handleServerListRequest(clientState, recievedNetworkObject);
+                        _opDef.HandleServerListRequest(clientState, recievedNetworkObject);
                         break;
                     case NetObjectType.CLIENT_SERVER_MODIFY_REGISTERED_SERVER:
-                        opDef.handleModifyExistingServerRequest(clientState, recievedNetworkObject);
+                        _opDef.HandleModifyExistingServerRequest(clientState, recievedNetworkObject);
                         break;
                     case NetObjectType.CLIENT_SERVER_REGISTER_SERVER:
-                        opDef.handleRegisterNewServer(clientState, recievedNetworkObject);
+                        _opDef.HandleRegisterNewServer(clientState, recievedNetworkObject);
                         break;
                     case NetObjectType.CLIENT_SERVER_RESPONSE_GENERIC:
-                        opDef.handleRespondToClient(clientState, recievedNetworkObject);
+                        _opDef.HandleRespondToClient(clientState, recievedNetworkObject);
                         break;
                     case NetObjectType.CLIENT_SERVER_UNREGISTER_SERVER:
-                        opDef.handleUnregisterServerRequest(clientState, recievedNetworkObject);
+                        _opDef.HandleUnregisterServerRequest(clientState, recievedNetworkObject);
                         break;
                     case NetObjectType.SERVER_SEND_MATCHMAKE:
-                        opDef.handleMatchmakingRequest(clientState, recievedNetworkObject);
+                        _opDef.HandleMatchmakingRequest(clientState, recievedNetworkObject);
                         break;
                 }
             }
             catch(Exception e)
             {
                 Debug.Logging.errlog(Utils.connectionInfo(clientState) + "Something went wrong when reading data!\n" + e.Message + "\n" + e.StackTrace, ErrorSeverity.ERROR_INFO);
-                shutdownAndCloseSocket(clientState);
+                ShutdownAndCloseSocket(clientState);
                 return;
             }
         }
 
-        public static void respondToClient(ServerConnectionStateObject clientState, NetworkObject obj)
+        public static void RespondToClient(ServerConnectionStateObject clientState, NetworkObject obj)
         {
             try
             {
                 byte[] networkObjectBytes = Encoding.ASCII.GetBytes(JsonConvert.SerializeObject(obj));
 
                 clientState.workSocket.BeginSend(networkObjectBytes, 0, Configuration.ServerVariables.BUFFER_SIZE, 0,
-                                                new AsyncCallback(clientResponseStatus), clientState);
+                                                new AsyncCallback(ClientResponseStatus), clientState);
             }
             catch (Exception e)
             {
                 Debug.Logging.errlog(Utils.connectionInfo(clientState) + "Unable to send client data:\n" + e.Message + "\n" + e.StackTrace, ErrorSeverity.ERROR_INFO);
-                shutdownAndCloseSocket(clientState);
+                ShutdownAndCloseSocket(clientState);
                 return;
             }
         }
 
-        public static void clientResponseStatus(IAsyncResult result)
+        public static void ClientResponseStatus(IAsyncResult result)
         {
             ServerConnectionStateObject clientState = (ServerConnectionStateObject)result.AsyncState;
             try
@@ -234,24 +234,24 @@ namespace Matchmaker.Net.Network
             catch (Exception e)
             {
                 Debug.Logging.errlog(Utils.connectionInfo(clientState) + "Unable to send client data:\n" + e.Message + "\n" + e.StackTrace, ErrorSeverity.ERROR_INFO);
-                shutdownAndCloseSocket(clientState);
+                ShutdownAndCloseSocket(clientState);
                 return;
             }
         }
 
-        public static void shutdownAndCloseSocket(ServerConnectionStateObject clientState)
+        public static void ShutdownAndCloseSocket(ServerConnectionStateObject clientState)
         {
             try
             {
                 if (clientState.workSocket.Connected)
                 {
-                    ServerManager.diconnectClient();
+                    ServerManager.DiconnectClient();
                     clientState.workSocket.Shutdown(SocketShutdown.Both);
                     clientState.workSocket.Close();
                 }
                 else
                 {
-                    ServerManager.diconnectClient();
+                    ServerManager.DiconnectClient();
                 }
             }
             catch (Exception e)
