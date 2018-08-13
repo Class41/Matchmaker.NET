@@ -62,6 +62,7 @@
     <Compile Include="Matchmaker\Network\Peripheral\SerializeBinder.cs" />
     <Compile Include="Matchmaker\Network\ServerConnectionStateObject.cs" />
     <Compile Include="Matchmaker\Network\SocketManager.cs" />
+    <Compile Include="Matchmaker\Server\AntispamProtection.cs" />
     <Compile Include="Matchmaker\Server\ServerManager.cs" />
     <Compile Include="Matchmaker\Server\ServerOperation.cs" />
     <Compile Include="Program.cs" />

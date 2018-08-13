@@ -12,6 +12,12 @@ namespace Matchmaker.Net.Configuration
         public static bool DEBUG_ENABLED = false;
     }
 
+    public static class SpamProtection
+    {
+        public static bool SPAM_PROTECTION_ENABLED = true;
+        public static int FAILED_ATTEMPT_COUNT = 3;
+    }
+
     public static class ServerVariables
     {
         public static int PORT = 25599,

@@ -87,11 +87,15 @@ namespace Matchmaker.Net.Network
             clientState.endpointIP = remoteIP.Address.ToString();
             clientState.endpointPort = remoteIP.Port.ToString();
 
+            if (Configuration.SpamProtection.SPAM_PROTECTION_ENABLED)
+                if (!AntispamProtection.checkUser(clientState.endpointIP))
+                    return;
+
+
             Debug.Logging.errlog(Utils.connectionInfo(clientState) +"Handling incoming connection request", ErrorSeverity.ERROR_INFO);
 
             if (ServerManager.clientCanConnect())
             {
-                Debug.Logging.errlog(Utils.connectionInfo(clientState) + "Directly handling incoming request", ErrorSeverity.ERROR_INFO);
                 ServerManager.connectClient();
                 readAsyncDelayed(ar, clientState);
             }
@@ -143,6 +147,10 @@ namespace Matchmaker.Net.Network
                     catch(Exception e)
                     {
                         Debug.Logging.errlog(Utils.connectionInfo(clientState) + "Malformed or incomplete data, object conversion error:\n" + e.Message + "\n" + e.StackTrace, ErrorSeverity.ERROR_INFO);
+
+                        if(Configuration.SpamProtection.SPAM_PROTECTION_ENABLED)
+                            AntispamProtection.markForMaloformedData(clientState.endpointIP);
+
                         shutdownAndCloseSocket(clientState);
                         return;
                     }
