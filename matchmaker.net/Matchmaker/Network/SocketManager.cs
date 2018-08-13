@@ -148,7 +148,7 @@ namespace Matchmaker.Net.Network
                     {
                         Debug.Logging.errlog(Utils.connectionInfo(clientState) + "Malformed or incomplete data, object conversion error:\n" + e.Message + "\n" + e.StackTrace, ErrorSeverity.ERROR_INFO);
 
-                        if(Configuration.SpamProtection.SPAM_PROTECTION_ENABLED)
+                        if (Configuration.SpamProtection.SPAM_PROTECTION_ENABLED)
                             AntispamProtection.MarkForMaloformedData(clientState.endpointIP);
 
                         ShutdownAndCloseSocket(clientState);
@@ -167,6 +167,8 @@ namespace Matchmaker.Net.Network
             catch (Exception e)
             {
                 Debug.Logging.errlog(Utils.connectionInfo(clientState) + "Something went wrong reading from socket:\n" + e.Message + "\n" + e.StackTrace, ErrorSeverity.ERROR_WARNING);
+                if (Configuration.SpamProtection.SPAM_PROTECTION_ENABLED)
+                    AntispamProtection.MarkForMaloformedData(clientState.endpointIP);
                 ShutdownAndCloseSocket(clientState);
                 return;
             }
@@ -212,7 +214,7 @@ namespace Matchmaker.Net.Network
             {
                 byte[] networkObjectBytes = Encoding.ASCII.GetBytes(JsonConvert.SerializeObject(obj));
 
-                clientState.workSocket.BeginSend(networkObjectBytes, 0, Configuration.ServerVariables.BUFFER_SIZE, 0,
+                clientState.workSocket.BeginSend(networkObjectBytes, 0, networkObjectBytes.Length, 0,
                                                 new AsyncCallback(ClientResponseStatus), clientState);
             }
             catch (Exception e)
@@ -229,7 +231,8 @@ namespace Matchmaker.Net.Network
             try
             {
                 int responseSize = clientState.workSocket.EndSend(result);
-                Debug.Logging.errlog(Utils.connectionInfo(clientState) + "Sent data to client:" + responseSize + " Bytes.", ErrorSeverity.ERROR_INFO);
+                Debug.Logging.errlog(Utils.connectionInfo(clientState) + "Sent data to client: " + responseSize + " Bytes.", ErrorSeverity.ERROR_INFO);
+                ShutdownAndCloseSocket(clientState);
             }
             catch (Exception e)
             {

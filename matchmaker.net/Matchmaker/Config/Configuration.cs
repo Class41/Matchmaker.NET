@@ -15,7 +15,7 @@ namespace Matchmaker.Net.Configuration
     public static class SpamProtection
     {
         public static bool SPAM_PROTECTION_ENABLED = true;
-        public static int FAILED_ATTEMPT_COUNT = 3;
+        public static int FAILED_ATTEMPT_COUNT_MAX = 1;
     }
 
     public static class ServerVariables
