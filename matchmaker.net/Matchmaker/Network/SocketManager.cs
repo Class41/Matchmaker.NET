@@ -101,7 +101,7 @@ namespace Matchmaker.Net.Network
             }
             else
             {
-                Debug.Logging.errlog(Utils.connectionInfo(clientState) + "CPU full: offloading incoming request to queue", ErrorSeverity.ERROR_INFO);
+                Debug.Logging.errlog(Utils.connectionInfo(clientState) + "CPU full: offloading incoming request to queue", ErrorSeverity.ERROR_WARNING);
                 ServerManager.queuedClients.Enqueue(new DelayedQueueConnection(ar, clientState));
             }
         }
@@ -114,7 +114,7 @@ namespace Matchmaker.Net.Network
             }
             catch(Exception e)
             {
-                Debug.Logging.errlog(Utils.connectionInfo(clientState) + "Socket read failure:\n" + e.Message + "\n" + e.StackTrace, ErrorSeverity.ERROR_INFO);
+                Debug.Logging.errlog(Utils.connectionInfo(clientState) + "Socket read failure:\n" + e.Message + "\n" + e.StackTrace, ErrorSeverity.ERROR_WARNING);
                 ShutdownAndCloseSocket(clientState);
                 return;
             }
@@ -128,47 +128,47 @@ namespace Matchmaker.Net.Network
                 Debug.Logging.errlog(Utils.connectionInfo(clientState) + "Reading data from socket", ErrorSeverity.ERROR_INFO);
                 int bytecount = clientState.workSocket.EndReceive(result);
 
-                if(bytecount == 5)
+                if (bytecount > 0)
                 {
-                    try
+                    if (bytecount == 5)
                     {
-                        string eofCheck = Encoding.ASCII.GetString(clientState.byteBuffer);
-                        if (eofCheck.IndexOf("<EOF>") != -1)
+                        try
                         {
-                            byte[] extractedRecievedData = new byte[clientState.requestBufferPosition];
-                            Array.Copy(clientState.requestBuffer, extractedRecievedData, clientState.requestBufferPosition);
+                            string eofCheck = Encoding.ASCII.GetString(clientState.byteBuffer);
+                            if (eofCheck.IndexOf("<EOF>") != -1)
+                            {
+                                byte[] extractedRecievedData = new byte[clientState.requestBufferPosition];
+                                Array.Copy(clientState.requestBuffer, extractedRecievedData, clientState.requestBufferPosition);
 
-                            NetworkObject recievedObject = JsonConvert.DeserializeObject<NetworkObject>(Encoding.ASCII.GetString(extractedRecievedData));
-                            Logging.errlog(recievedObject.data, ErrorSeverity.ERROR_INFO);
-                            DecodeOperation(recievedObject, clientState);
+                                NetworkObject recievedObject = JsonConvert.DeserializeObject<NetworkObject>(Encoding.ASCII.GetString(extractedRecievedData));
+                                Logging.errlog(recievedObject.data, ErrorSeverity.ERROR_INFO);
+                                DecodeOperation(recievedObject, clientState);
+                                return;
+                            }
+                        }
+                        catch (Exception e)
+                        {
+                            Debug.Logging.errlog(Utils.connectionInfo(clientState) + "Malformed or incomplete data, object conversion error:\n" + e.Message + "\n" + e.StackTrace, ErrorSeverity.ERROR_WARNING);
+
+                            if (Configuration.SpamProtection.SPAM_PROTECTION_ENABLED)
+                                AntispamProtection.MarkForMaloformedData(clientState.endpointIP);
+
+                            ShutdownAndCloseSocket(clientState);
                             return;
                         }
                     }
-                    catch(Exception e)
-                    {
-                        Debug.Logging.errlog(Utils.connectionInfo(clientState) + "Malformed or incomplete data, object conversion error:\n" + e.Message + "\n" + e.StackTrace, ErrorSeverity.ERROR_INFO);
 
-                        if (Configuration.SpamProtection.SPAM_PROTECTION_ENABLED)
-                            AntispamProtection.MarkForMaloformedData(clientState.endpointIP);
-
-                        ShutdownAndCloseSocket(clientState);
-                        return;
-                    }
+                    Array.ConstrainedCopy(clientState.byteBuffer, 0, clientState.requestBuffer, clientState.requestBufferPosition, bytecount);
+                    Array.Clear(clientState.byteBuffer, 0, Configuration.ServerVariables.BUFFER_SIZE);
+                    clientState.requestBufferPosition += bytecount;
+                    Debug.Logging.errlog(Utils.connectionInfo(clientState) + "Recieved " + bytecount + " bytes (" + clientState.requestBufferPosition + " total bytes stored in instance)", ErrorSeverity.ERROR_INFO);
+                    Debug.Logging.dbgMessageByteArray<byte>(clientState.requestBuffer);
                 }
-
-                Array.ConstrainedCopy(clientState.byteBuffer, 0, clientState.requestBuffer, clientState.requestBufferPosition, bytecount);
-                Array.Clear(clientState.byteBuffer, 0, Configuration.ServerVariables.BUFFER_SIZE);
-                clientState.requestBufferPosition += bytecount;
-                Debug.Logging.errlog(Utils.connectionInfo(clientState) + "Recieved " + bytecount + " bytes (" + clientState.requestBufferPosition + " total bytes stored in instance)", ErrorSeverity.ERROR_INFO);
-                Debug.Logging.dbgMessageByteArray<byte>(clientState.requestBuffer);
-
                 clientState.workSocket.BeginReceive(clientState.byteBuffer, 0, Configuration.ServerVariables.BUFFER_SIZE, SocketFlags.None, new AsyncCallback(ReadAsyncBytes), clientState);
             }
             catch (Exception e)
             {
                 Debug.Logging.errlog(Utils.connectionInfo(clientState) + "Something went wrong reading from socket:\n" + e.Message + "\n" + e.StackTrace, ErrorSeverity.ERROR_WARNING);
-                if (Configuration.SpamProtection.SPAM_PROTECTION_ENABLED)
-                    AntispamProtection.MarkForMaloformedData(clientState.endpointIP);
                 ShutdownAndCloseSocket(clientState);
                 return;
             }
@@ -202,7 +202,7 @@ namespace Matchmaker.Net.Network
             }
             catch(Exception e)
             {
-                Debug.Logging.errlog(Utils.connectionInfo(clientState) + "Something went wrong when reading data!\n" + e.Message + "\n" + e.StackTrace, ErrorSeverity.ERROR_INFO);
+                Debug.Logging.errlog(Utils.connectionInfo(clientState) + "Something went wrong when reading data!\n" + e.Message + "\n" + e.StackTrace, ErrorSeverity.ERROR_WARNING);
                 ShutdownAndCloseSocket(clientState);
                 return;
             }
@@ -219,7 +219,7 @@ namespace Matchmaker.Net.Network
             }
             catch (Exception e)
             {
-                Debug.Logging.errlog(Utils.connectionInfo(clientState) + "Unable to send client data:\n" + e.Message + "\n" + e.StackTrace, ErrorSeverity.ERROR_INFO);
+                Debug.Logging.errlog(Utils.connectionInfo(clientState) + "Unable to send client data:\n" + e.Message + "\n" + e.StackTrace, ErrorSeverity.ERROR_WARNING);
                 ShutdownAndCloseSocket(clientState);
                 return;
             }
@@ -236,7 +236,7 @@ namespace Matchmaker.Net.Network
             }
             catch (Exception e)
             {
-                Debug.Logging.errlog(Utils.connectionInfo(clientState) + "Unable to send client data:\n" + e.Message + "\n" + e.StackTrace, ErrorSeverity.ERROR_INFO);
+                Debug.Logging.errlog(Utils.connectionInfo(clientState) + "Unable to send client data:\n" + e.Message + "\n" + e.StackTrace, ErrorSeverity.ERROR_WARNING);
                 ShutdownAndCloseSocket(clientState);
                 return;
             }
@@ -259,7 +259,7 @@ namespace Matchmaker.Net.Network
             }
             catch (Exception e)
             {
-                Debug.Logging.errlog(Utils.connectionInfo(clientState) + "Failed to shutdown client:\n" + e.Message + "\n" + e.StackTrace, ErrorSeverity.ERROR_INFO);
+                Debug.Logging.errlog(Utils.connectionInfo(clientState) + "Failed to shutdown client:\n" + e.Message + "\n" + e.StackTrace, ErrorSeverity.ERROR_WARNING);
                 return;
             }
         }

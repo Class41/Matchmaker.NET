@@ -30,7 +30,7 @@ namespace Matchmaker.Net.Server
         {
             if (_malformUsers.ContainsKey(ip))
             {
-                if(_malformUsers[ip] > Configuration.SpamProtection.FAILED_ATTEMPT_COUNT_MAX)
+                if(_malformUsers[ip] >= Configuration.SpamProtection.FAILED_ATTEMPT_COUNT_MAX)
                 {
                     Debug.Logging.errlog("User " + ip + " denied acceess due to repeated malformed data. (" + _malformUsers[ip] + " failures)", Enums.ErrorSeverity.ERROR_INFO);
                     return false;

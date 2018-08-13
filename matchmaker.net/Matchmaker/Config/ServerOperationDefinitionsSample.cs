@@ -39,6 +39,7 @@ namespace Matchmaker.Net.Configuration.Sample
         public override void HandleRespondToClient(ServerConnectionStateObject connection, NetworkObject recievedObj)
         {
            NetworkObject response = new NetworkObject(recievedObj.requestType);
+            response.data = "@SeverEcho: " + recievedObj.data;
            //throw new NotImplementedException(); //remove this and replace with functionality
            SendResponse(connection, response);
         }
