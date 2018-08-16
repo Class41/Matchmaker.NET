@@ -1,10 +1,6 @@
-﻿using Matchmaker.Net.Server;
+﻿using Matchmaker.Net.Network;
+using Matchmaker.Net.Server;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Matchmaker.Net.Network;
 
 namespace Matchmaker.Net.Configuration
 {

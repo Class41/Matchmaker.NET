@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net.Sockets;
 using System.Text;
-using System.Threading.Tasks;
+using System.Threading;
 
 namespace Matchmaker.Net.Network
 {
@@ -14,11 +12,20 @@ namespace Matchmaker.Net.Network
         public byte[] byteBuffer, requestBuffer;
         public StringBuilder data = new StringBuilder();
         public string endpointIP, endpointPort;
+        public Timer timeoutTimer;
+        public bool disconnectCounted = false;
 
         public ServerConnectionStateObject()
         {
             byteBuffer = new Byte[Configuration.ServerVariables.BUFFER_SIZE];
             requestBuffer = new Byte[Configuration.ServerVariables.BUFFER_SIZE];
+
+            timeoutTimer = new Timer(new TimerCallback(SocketTimedOut), null, Timeout.Infinite, Timeout.Infinite);
+        }
+
+        private void SocketTimedOut(object state)
+        {
+            SocketManager.ShutdownAndCloseSocket(this);
         }
     }
 }

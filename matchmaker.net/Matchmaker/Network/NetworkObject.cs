@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Matchmaker.Net.Enums;
+﻿using Matchmaker.Net.Enums;
+using System;
 
 namespace Matchmaker.Net.Network
 {

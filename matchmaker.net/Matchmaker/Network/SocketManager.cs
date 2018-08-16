@@ -1,20 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using Matchmaker.Net.Debug;
+using Matchmaker.Net.Enums;
+using Matchmaker.Net.Server;
+using Newtonsoft.Json;
+using System;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
-using System.Threading.Tasks;
-using Matchmaker.Net.Debug;
-using Matchmaker.Net.Enums;
 using System.Threading;
-using Matchmaker.Net.Network;
-using System.Runtime.Serialization.Formatters.Binary;
-using System.Net.Security;
-using System.IO;
-using Matchmaker.Net.Server;
-using Newtonsoft.Json;
-using Matchmaker.Net.Configuration;
 
 namespace Matchmaker.Net.Network
 {
@@ -110,6 +102,7 @@ namespace Matchmaker.Net.Network
         {
             try
             {
+                clientState.timeoutTimer.Change(5000, Timeout.Infinite);
                 clientState.workSocket.BeginReceive(clientState.byteBuffer, 0, Configuration.ServerVariables.BUFFER_SIZE, SocketFlags.None, new AsyncCallback(ReadAsyncBytes), clientState);
             }
             catch(Exception e)
@@ -164,6 +157,8 @@ namespace Matchmaker.Net.Network
                     Debug.Logging.errlog(Utils.connectionInfo(clientState) + "Recieved " + bytecount + " bytes (" + clientState.requestBufferPosition + " total bytes stored in instance)", ErrorSeverity.ERROR_INFO);
                     Debug.Logging.dbgMessageByteArray<byte>(clientState.requestBuffer);
                 }
+
+                clientState.timeoutTimer.Change(5000, Timeout.Infinite);
                 clientState.workSocket.BeginReceive(clientState.byteBuffer, 0, Configuration.ServerVariables.BUFFER_SIZE, SocketFlags.None, new AsyncCallback(ReadAsyncBytes), clientState);
             }
             catch (Exception e)
@@ -246,15 +241,17 @@ namespace Matchmaker.Net.Network
         {
             try
             {
-                if (clientState.workSocket.Connected)
+                if (clientState.workSocket.Connected && clientState.disconnectCounted == false)
                 {
                     ServerManager.DiconnectClient();
                     clientState.workSocket.Shutdown(SocketShutdown.Both);
                     clientState.workSocket.Close();
+                    clientState.disconnectCounted = true;
                 }
-                else
+                else if (clientState.disconnectCounted == false)
                 {
                     ServerManager.DiconnectClient();
+                    clientState.disconnectCounted = true;
                 }
             }
             catch (Exception e)

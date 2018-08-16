@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Threading;
-using Matchmaker.Net.Debug;
+﻿using Matchmaker.Net.Debug;
 using Matchmaker.Net.Enums;
 using Matchmaker.Net.Server;
+using System.Threading;
 
 namespace Matchmaker.Net.Network
 {
@@ -31,9 +26,12 @@ namespace Matchmaker.Net.Network
 
                     for (int i = 1; i <= ServerManager.GetOpenSlots(); i++)
                     {
-                        DelayedQueueConnection connectionObject = ServerManager.queuedClients.Dequeue();
-                        _socketManager.ReadAsyncDelayed(connectionObject.ar, connectionObject.clientState);
-                        ServerManager.ConnectClient();
+                        if (ServerManager.queuedClients.Count > 0)
+                        {
+                            DelayedQueueConnection connectionObject = ServerManager.queuedClients.Dequeue();
+                            _socketManager.ReadAsyncDelayed(connectionObject.ar, connectionObject.clientState);
+                            ServerManager.ConnectClient();
+                        }
                     }
                 }
 

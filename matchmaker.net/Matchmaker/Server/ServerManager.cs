@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-
+﻿using Matchmaker.Net.Client;
 using Matchmaker.Net.Debug;
 using Matchmaker.Net.Enums;
-using Matchmaker.Net.Client;
 using Matchmaker.Net.Network;
-using Matchmaker.Net.Configuration;
+using System.Collections.Generic;
 
 namespace Matchmaker.Net.Server
 {
