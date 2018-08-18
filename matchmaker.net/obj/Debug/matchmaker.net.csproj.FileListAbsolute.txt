@@ -1,7 +1,14 @@
 X:\Programming\VS\matchmake .net\matchmaker.net\matchmaker.net\bin\Debug\matchmaker.net.exe.config
 X:\Programming\VS\matchmake .net\matchmaker.net\matchmaker.net\bin\Debug\matchmaker.net.exe
 X:\Programming\VS\matchmake .net\matchmaker.net\matchmaker.net\bin\Debug\matchmaker.net.pdb
-X:\Programming\VS\matchmake .net\matchmaker.net\matchmaker.net\obj\Debug\matchmaker.net.csprojResolveAssemblyReference.cache
+X:\Programming\VS\matchmake .net\matchmaker.net\matchmaker.net\bin\Debug\Newtonsoft.Json.dll
 X:\Programming\VS\matchmake .net\matchmaker.net\matchmaker.net\obj\Debug\matchmaker.net.exe
 X:\Programming\VS\matchmake .net\matchmaker.net\matchmaker.net\obj\Debug\matchmaker.net.pdb
-X:\Programming\VS\matchmake .net\matchmaker.net\matchmaker.net\bin\Debug\Newtonsoft.Json.dll
+X:\Programming\VS\matchmake .net\matchmaker.net\matchmaker.net\obj\Debug\Matchmaker.Net.csprojResolveAssemblyReference.cache
+X:\Programming\VS\matchmake .net\matchmaker.net\matchmaker.net\obj\Debug\Matchmaker.Net.Properties.Resources.resources
+X:\Programming\VS\matchmake .net\matchmaker.net\matchmaker.net\obj\Debug\Matchmaker.Net.csproj.GenerateResource.Cache
+X:\Programming\VS\matchmake .net\matchmaker.net\matchmaker.net\bin\Debug\Matchmaker.Net.exe.manifest
+X:\Programming\VS\matchmake .net\matchmaker.net\matchmaker.net\bin\Debug\Matchmaker.Net.application
+X:\Programming\VS\matchmake .net\matchmaker.net\matchmaker.net\obj\Debug\Matchmaker.Net.TrustInfo.xml
+X:\Programming\VS\matchmake .net\matchmaker.net\matchmaker.net\obj\Debug\Matchmaker.Net.exe.manifest
+X:\Programming\VS\matchmake .net\matchmaker.net\matchmaker.net\obj\Debug\Matchmaker.Net.application

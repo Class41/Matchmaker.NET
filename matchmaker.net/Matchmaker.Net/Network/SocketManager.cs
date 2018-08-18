@@ -12,7 +12,6 @@ namespace Matchmaker.Net.Network
 {
     public class SocketManager
     {
-        
         private IPHostEntry _ipHostInfo;
         private IPAddress _ipAddress;
         private IPEndPoint _localEndPoint;
@@ -29,7 +28,7 @@ namespace Matchmaker.Net.Network
         }
 
         private void BeginListen(int port)
-        { 
+        {
             _ipHostInfo = Dns.GetHostEntry(Dns.GetHostName());
             _ipAddress = _ipHostInfo.AddressList[1];
             _localEndPoint = new IPEndPoint(_ipAddress, port);
@@ -69,11 +68,12 @@ namespace Matchmaker.Net.Network
         {
             threadFinished.Set();
 
-            Socket listener = (Socket) ar.AsyncState,
-                   handler = listener.EndAccept(ar);
+            Socket handler = ((Socket)ar.AsyncState).EndAccept(ar);
 
-            ServerConnectionStateObject clientState = new ServerConnectionStateObject();
-            clientState.workSocket = handler;
+            ServerConnectionStateObject clientState = new ServerConnectionStateObject()
+            {
+                workSocket = handler
+            };
 
             IPEndPoint remoteIP = (IPEndPoint)handler.RemoteEndPoint;
             clientState.endpointIP = remoteIP.Address.ToString();
@@ -84,7 +84,7 @@ namespace Matchmaker.Net.Network
                     return;
 
 
-            Debug.Logging.errlog(Utils.connectionInfo(clientState) +"Handling incoming connection request", ErrorSeverity.ERROR_INFO);
+            Debug.Logging.errlog(Utils.connectionInfo(clientState) + "Handling incoming connection request", ErrorSeverity.ERROR_INFO);
 
             if (ServerManager.ClientCanConnect())
             {
@@ -102,10 +102,10 @@ namespace Matchmaker.Net.Network
         {
             try
             {
-                clientState.timeoutTimer.Change(5000, Timeout.Infinite);
+                clientState.timeoutTimer.Change(Configuration.ServerVariables.CLIENT_CONNECTION_TIMEOUT, Timeout.Infinite);
                 clientState.workSocket.BeginReceive(clientState.byteBuffer, 0, Configuration.ServerVariables.BUFFER_SIZE, SocketFlags.None, new AsyncCallback(ReadAsyncBytes), clientState);
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 Debug.Logging.errlog(Utils.connectionInfo(clientState) + "Socket read failure:\n" + e.Message + "\n" + e.StackTrace, ErrorSeverity.ERROR_WARNING);
                 ShutdownAndCloseSocket(clientState);
@@ -158,7 +158,7 @@ namespace Matchmaker.Net.Network
                     Debug.Logging.dbgMessageByteArray<byte>(clientState.requestBuffer);
                 }
 
-                clientState.timeoutTimer.Change(5000, Timeout.Infinite);
+                clientState.timeoutTimer.Change(Configuration.ServerVariables.CLIENT_CONNECTION_TIMEOUT, Timeout.Infinite);
                 clientState.workSocket.BeginReceive(clientState.byteBuffer, 0, Configuration.ServerVariables.BUFFER_SIZE, SocketFlags.None, new AsyncCallback(ReadAsyncBytes), clientState);
             }
             catch (Exception e)
@@ -195,7 +195,7 @@ namespace Matchmaker.Net.Network
                         break;
                 }
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 Debug.Logging.errlog(Utils.connectionInfo(clientState) + "Something went wrong when reading data!\n" + e.Message + "\n" + e.StackTrace, ErrorSeverity.ERROR_WARNING);
                 ShutdownAndCloseSocket(clientState);
@@ -243,9 +243,9 @@ namespace Matchmaker.Net.Network
             {
                 if (clientState.workSocket.Connected && clientState.disconnectCounted == false)
                 {
-                    ServerManager.DiconnectClient();
                     clientState.workSocket.Shutdown(SocketShutdown.Both);
                     clientState.workSocket.Close();
+                    ServerManager.DiconnectClient();
                     clientState.disconnectCounted = true;
                 }
                 else if (clientState.disconnectCounted == false)

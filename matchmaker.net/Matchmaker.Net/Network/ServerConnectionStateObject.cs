@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Matchmaker.Net.Enums;
+using System;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
@@ -10,7 +11,6 @@ namespace Matchmaker.Net.Network
         public Socket workSocket = null;
         public int requestBufferPosition = 0;
         public byte[] byteBuffer, requestBuffer;
-        public StringBuilder data = new StringBuilder();
         public string endpointIP, endpointPort;
         public Timer timeoutTimer;
         public bool disconnectCounted = false;
@@ -25,7 +25,11 @@ namespace Matchmaker.Net.Network
 
         private void SocketTimedOut(object state)
         {
-            SocketManager.ShutdownAndCloseSocket(this);
+            if (!disconnectCounted)
+            {
+                Debug.Logging.errlog(Debug.Utils.connectionInfo(this) + " Destroying socket due to inactivity or timeout ", ErrorSeverity.ERROR_WARNING);
+                SocketManager.ShutdownAndCloseSocket(this);
+            }
         }
     }
 }

@@ -12,7 +12,9 @@ namespace Matchmaker.Net.Configuration.Sample
         {
             NetworkObject response = new NetworkObject(recievedObj.requestType);
             throw new NotImplementedException(); //remove this and replace with functionality
+#pragma warning disable CS0162 // Unreachable code detected
             SendResponse(connection, response);
+#pragma warning restore CS0162 // Unreachable code detected
         }
 
         //called when the client tries to modify existing registered server in server list
@@ -20,7 +22,9 @@ namespace Matchmaker.Net.Configuration.Sample
         {
             NetworkObject response = new NetworkObject(recievedObj.requestType);
             throw new NotImplementedException(); //remove this and replace with functionality
+#pragma warning disable CS0162 // Unreachable code detected
             SendResponse(connection, response);
+#pragma warning restore CS0162 // Unreachable code detected
         }
 
         //called when client asks to register a new server
@@ -28,16 +32,18 @@ namespace Matchmaker.Net.Configuration.Sample
         {
             NetworkObject response = new NetworkObject(recievedObj.requestType);
             throw new NotImplementedException(); //remove this and replace with functionality
+#pragma warning disable CS0162 // Unreachable code detected
             SendResponse(connection, response);
+#pragma warning restore CS0162 // Unreachable code detected
         }
 
         //called when a generic response is required
         public override void HandleRespondToClient(ServerConnectionStateObject connection, NetworkObject recievedObj)
         {
-           NetworkObject response = new NetworkObject(recievedObj.requestType);
+            NetworkObject response = new NetworkObject(recievedObj.requestType);
             response.data = "@SeverEcho: " + recievedObj.data;
-           //throw new NotImplementedException(); //remove this and replace with functionality
-           SendResponse(connection, response);
+            //throw new NotImplementedException(); //remove this and replace with functionality
+            SendResponse(connection, response);
         }
 
         //called when the client requests the server list
@@ -45,7 +51,9 @@ namespace Matchmaker.Net.Configuration.Sample
         {
             NetworkObject response = new NetworkObject(recievedObj.requestType);
             throw new NotImplementedException(); //remove this and replace with functionality
+#pragma warning disable CS0162 // Unreachable code detected
             SendResponse(connection, response);
+#pragma warning restore CS0162 // Unreachable code detected
         }
 
         //called when the client asks to unregister a currently registered server
@@ -53,7 +61,9 @@ namespace Matchmaker.Net.Configuration.Sample
         {
             NetworkObject response = new NetworkObject(recievedObj.requestType);
             throw new NotImplementedException(); //remove this and replace with functionality
+#pragma warning disable CS0162 // Unreachable code detected
             SendResponse(connection, response);
+#pragma warning restore CS0162 // Unreachable code detected
         }
     }
 }

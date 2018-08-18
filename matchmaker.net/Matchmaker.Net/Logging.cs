@@ -23,7 +23,7 @@ namespace Matchmaker.Net.Debug
         public static void dbgMessage(string message)
         {
             if (Configuration.Debugging.DEBUG_ENABLED)
-            Console.WriteLine(message);
+                Console.WriteLine(message);
         }
 
         public static void dbgMessage<T>(string message, T data)
@@ -45,8 +45,8 @@ namespace Matchmaker.Net.Debug
             int position = 0;
             foreach (T value in data)
             {
-                if(value.ToString() != "0")
-                dbgMessage(position++ + " : " + value.ToString());
+                if (value.ToString() != "0")
+                    dbgMessage(position++ + " : " + value.ToString());
             }
         }
 
@@ -55,7 +55,7 @@ namespace Matchmaker.Net.Debug
             int position = 0;
             foreach (T value in data)
             {
-                    dbgMessage(position++ + " : " + value.ToString());
+                dbgMessage(position++ + " : " + value.ToString());
             }
         }
 
@@ -85,9 +85,9 @@ namespace Matchmaker.Net.Debug
             }
         }
 
-            public static void errlog(string message, ErrorSeverity data)
+        public static void errlog(string message, ErrorSeverity data)
         {
-            switch(data)
+            switch (data)
             {
                 case ErrorSeverity.ERROR_INFO:
                     dbgMessage("[INFO] :: " + message);

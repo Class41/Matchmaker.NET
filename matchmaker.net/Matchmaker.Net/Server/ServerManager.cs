@@ -13,7 +13,7 @@ namespace Matchmaker.Net.Server
 
         public static bool ClientCanConnect()
         {
-            if (((_currentlyOperatingClients < Configuration.ServerVariables.MAX_CLIENTS_CONNECTED) && queuedClients.Count == 0)  || Configuration.ServerVariables.MAX_CLIENTS_CONNECTED < 0)
+            if (((_currentlyOperatingClients < Configuration.ServerVariables.MAX_CLIENTS_CONNECTED) && queuedClients.Count == 0) || Configuration.ServerVariables.MAX_CLIENTS_CONNECTED < 0)
                 return true;
             else
                 return false;

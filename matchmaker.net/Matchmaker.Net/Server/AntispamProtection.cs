@@ -12,7 +12,7 @@ namespace Matchmaker.Net.Server
         {
             Logging.dbgMessage("<SpamList>");
             foreach (var x in _malformUsers)
-                Logging.dbgMessage(String.Format(":: [Banned] ip {0} with malcount {2}", x.Key, x.Value));
+                Logging.dbgMessage(String.Format(":: [Banned] ip {0} with malcount {1}", x.Key, x.Value));
             Logging.dbgMessage("</SpamList>");
         }
 
@@ -25,9 +25,9 @@ namespace Matchmaker.Net.Server
         {
             if (_malformUsers.ContainsKey(ip))
             {
-                if(_malformUsers[ip] >= Configuration.SpamProtection.FAILED_ATTEMPT_COUNT_MAX)
+                if (_malformUsers[ip] >= Configuration.SpamProtection.FAILED_ATTEMPT_COUNT_MAX)
                 {
-                    Debug.Logging.errlog("User " + ip + " denied acceess due to repeated malformed data. (" + _malformUsers[ip] + " failures)", Enums.ErrorSeverity.ERROR_INFO);
+                    Debug.Logging.errlog(String.Format("User {0} denied acceess due to repeated malformed data. ({1} failures)", ip, _malformUsers[ip]), Enums.ErrorSeverity.ERROR_INFO);
                     return false;
                 }
 

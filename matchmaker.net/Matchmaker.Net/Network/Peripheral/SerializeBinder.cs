@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Matchmaker.Net.Network
 {
-    [Obsolete("Switched to JSON",true)]
+    [Obsolete("Switched to JSON", true)]
     public class SerializeBinder : System.Runtime.Serialization.SerializationBinder
     {
         public override Type BindToType(string assemblyName, string typeName)

@@ -1,0 +1,6 @@
+X:\Programming\VS\matchmake .net\matchmaker.net\matchmaker.net\bin\Release\matchmaker.net.exe.config
+X:\Programming\VS\matchmake .net\matchmaker.net\matchmaker.net\bin\Release\matchmaker.net.exe
+X:\Programming\VS\matchmake .net\matchmaker.net\matchmaker.net\bin\Release\matchmaker.net.pdb
+X:\Programming\VS\matchmake .net\matchmaker.net\matchmaker.net\bin\Release\Newtonsoft.Json.dll
+X:\Programming\VS\matchmake .net\matchmaker.net\matchmaker.net\obj\Release\matchmaker.net.exe
+X:\Programming\VS\matchmake .net\matchmaker.net\matchmaker.net\obj\Release\matchmaker.net.pdb
