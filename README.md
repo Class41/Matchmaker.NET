@@ -25,3 +25,4 @@ License: MIT
 • Vasyl Onufriyev - Creator
 
 ## Links
+Discord: https://discord.gg/FK2yjEk
