@@ -1,6 +1,14 @@
 ﻿namespace Matchmaker.Net.Client
 {
-    class Admin : User
+    public class ServerEntry
     {
+        public UUID _identity;
+        public string _serverIP,
+                      _serverPort,
+                      _customMessage,
+                      _type = "default",
+                      _gameMode;
+        public int _maxPlayers,
+                   _currentPlayers;
     }
 }

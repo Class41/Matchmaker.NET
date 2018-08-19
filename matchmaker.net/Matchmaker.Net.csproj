@@ -87,8 +87,6 @@
   <ItemGroup>
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="Matchmaker.Net\Client\Server.cs" />
-    <Compile Include="Matchmaker.Net\Client\Client.cs" />
-    <Compile Include="Matchmaker.Net\Client\User.cs" />
     <Compile Include="Matchmaker.Net\Client\UUID.cs" />
     <Compile Include="Matchmaker.Net\Config\Configuration.cs" />
     <Compile Include="Matchmaker.Net\Config\ServerOperationDefinitionsTemplate.cs" />
@@ -103,6 +101,7 @@
     <Compile Include="Matchmaker.Net\Network\ServerConnectionStateObject.cs" />
     <Compile Include="Matchmaker.Net\Network\SocketManager.cs" />
     <Compile Include="Matchmaker.Net\Server\AntispamProtection.cs" />
+    <Compile Include="Matchmaker.Net\Server\RegisteredServerList.cs" />
     <Compile Include="Matchmaker.Net\Server\ServerManager.cs" />
     <Compile Include="Matchmaker.Net\Server\ServerOperation.cs" />
     <Compile Include="Program.cs" />
@@ -129,6 +128,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="deps\" />
+    <Folder Include="Server\" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Properties\Resources.resx">

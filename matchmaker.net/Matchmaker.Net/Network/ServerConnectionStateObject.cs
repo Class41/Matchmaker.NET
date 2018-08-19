@@ -6,7 +6,7 @@ using System.Threading;
 
 namespace Matchmaker.Net.Network
 {
-    public class ServerConnectionStateObject
+    public class ServerConnectionStateObject : IDisposable
     {
         public Socket workSocket = null;
         public int requestBufferPosition = 0;
@@ -29,7 +29,40 @@ namespace Matchmaker.Net.Network
             {
                 Debug.Logging.errlog(Debug.Utils.connectionInfo(this) + " Destroying socket due to inactivity or timeout ", ErrorSeverity.ERROR_WARNING);
                 SocketManager.ShutdownAndCloseSocket(this);
+                Dispose();
             }
         }
+
+        ~ServerConnectionStateObject()
+        {
+            Dispose(false);
+        }
+
+        #region IDisposable Support
+        private bool disposedValue = false; 
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    workSocket.Dispose();
+                    timeoutTimer.Dispose();
+                }
+
+                requestBufferPosition = 0;
+                byteBuffer = null;
+                requestBuffer = null;
+                disposedValue = true;
+            }
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+        #endregion
     }
 }

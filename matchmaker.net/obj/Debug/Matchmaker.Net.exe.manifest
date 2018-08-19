@@ -42,14 +42,14 @@
     </dependentAssembly>
   </dependency>
   <dependency>
-    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="Matchmaker.Net.exe" size="21984">
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="Matchmaker.Net.exe" size="23008">
       <assemblyIdentity name="Matchmaker.Net" version="1.0.0.0" language="neutral" processorArchitecture="msil" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>0/zIlgSG6La51kC8HziQ8Gk+EkL+2q+9ownswNPKHnA=</dsig:DigestValue>
+        <dsig:DigestValue>T6iNeVw7eQsp10jQgHTL8pI5T4lEIkNY4VCayNpzkYI=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>

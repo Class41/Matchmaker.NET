@@ -66,35 +66,42 @@ namespace Matchmaker.Net.Network
 
         private void HandleIncomingConnection(IAsyncResult ar)
         {
-            threadFinished.Set();
-
-            Socket handler = ((Socket)ar.AsyncState).EndAccept(ar);
-
-            ServerConnectionStateObject clientState = new ServerConnectionStateObject()
+            try
             {
-                workSocket = handler
-            };
+                threadFinished.Set();
 
-            IPEndPoint remoteIP = (IPEndPoint)handler.RemoteEndPoint;
-            clientState.endpointIP = remoteIP.Address.ToString();
-            clientState.endpointPort = remoteIP.Port.ToString();
+                Socket handler = ((Socket)ar.AsyncState).EndAccept(ar);
 
-            if (Configuration.SpamProtection.SPAM_PROTECTION_ENABLED)
-                if (!AntispamProtection.CheckUser(clientState.endpointIP))
-                    return;
+                ServerConnectionStateObject clientState = new ServerConnectionStateObject()
+                {
+                    workSocket = handler
+                };
+
+                IPEndPoint remoteIP = (IPEndPoint)handler.RemoteEndPoint;
+                clientState.endpointIP = remoteIP.Address.ToString();
+                clientState.endpointPort = remoteIP.Port.ToString();
+
+                if (Configuration.SpamProtection.SPAM_PROTECTION_ENABLED)
+                    if (!AntispamProtection.CheckUser(clientState.endpointIP))
+                        return;
 
 
-            Debug.Logging.errlog(Utils.connectionInfo(clientState) + "Handling incoming connection request", ErrorSeverity.ERROR_INFO);
+                Debug.Logging.errlog(Utils.connectionInfo(clientState) + "Handling incoming connection request", ErrorSeverity.ERROR_INFO);
 
-            if (ServerManager.ClientCanConnect())
-            {
-                ServerManager.ConnectClient();
-                ReadAsyncDelayed(ar, clientState);
+                if (ServerManager.ClientCanConnect())
+                {
+                    ServerManager.ConnectClient();
+                    ReadAsyncDelayed(ar, clientState);
+                }
+                else
+                {
+                    Debug.Logging.errlog(Utils.connectionInfo(clientState) + "CPU full: offloading incoming request to queue", ErrorSeverity.ERROR_WARNING);
+                    ServerManager.queuedClients.Enqueue(new DelayedQueueConnection(ar, clientState));
+                }
             }
-            else
+            catch (Exception e)
             {
-                Debug.Logging.errlog(Utils.connectionInfo(clientState) + "CPU full: offloading incoming request to queue", ErrorSeverity.ERROR_WARNING);
-                ServerManager.queuedClients.Enqueue(new DelayedQueueConnection(ar, clientState));
+                Debug.Logging.errlog("Failed to connect client:\n" + e.Message + "\n" + e.StackTrace, ErrorSeverity.ERROR_WARNING);
             }
         }
 

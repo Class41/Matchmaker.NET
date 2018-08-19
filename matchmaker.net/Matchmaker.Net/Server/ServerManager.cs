@@ -27,8 +27,11 @@ namespace Matchmaker.Net.Server
 
         public static void DiconnectClient()
         {
-            _currentlyOperatingClients--;
-            Logging.errlog("Active clients updated: " + _currentlyOperatingClients + "/" + Configuration.ServerVariables.MAX_CLIENTS_CONNECTED, ErrorSeverity.ERROR_INFO);
+            if (_currentlyOperatingClients > 0)
+            {
+                _currentlyOperatingClients--;
+                Logging.errlog("Active clients updated: " + _currentlyOperatingClients + "/" + Configuration.ServerVariables.MAX_CLIENTS_CONNECTED, ErrorSeverity.ERROR_INFO);
+            }
         }
 
         public static int GetOpenSlots()
