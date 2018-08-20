@@ -141,7 +141,6 @@ namespace Matchmaker.Net.Network
                                 Array.Copy(clientState.requestBuffer, extractedRecievedData, clientState.requestBufferPosition);
 
                                 NetworkObject recievedObject = JsonConvert.DeserializeObject<NetworkObject>(Encoding.ASCII.GetString(extractedRecievedData));
-                                Logging.errlog(recievedObject.data, ErrorSeverity.ERROR_INFO);
                                 DecodeOperation(recievedObject, clientState);
                                 return;
                             }
@@ -214,6 +213,7 @@ namespace Matchmaker.Net.Network
         {
             try
             {
+                Console.WriteLine("Sending: " + JsonConvert.SerializeObject(obj).ToString());
                 byte[] networkObjectBytes = Encoding.ASCII.GetBytes(JsonConvert.SerializeObject(obj));
 
                 clientState.workSocket.BeginSend(networkObjectBytes, 0, networkObjectBytes.Length, 0,

@@ -6,6 +6,7 @@ using System.Text;
 
 namespace Matchmaker.Net.Client
 {
+    [Serializable]
     public class UUID
     {
         [DllImport("User32.dll", CharSet = CharSet.Unicode)]

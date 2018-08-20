@@ -1,4 +1,5 @@
-﻿using Matchmaker.Net.Enums;
+﻿using Matchmaker.Net.Client;
+using Matchmaker.Net.Enums;
 using System;
 
 namespace Matchmaker.Net.Network
@@ -6,7 +7,7 @@ namespace Matchmaker.Net.Network
     [Serializable]
     public class NetworkObject
     {
-        public string data;
+        public ClientBase clientDetails;
         public NetObjectType requestType;
 
         public NetworkObject(NetObjectType type)

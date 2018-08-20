@@ -86,11 +86,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="GlobalSuppressions.cs" />
+    <Compile Include="Matchmaker.Net\Client\ClientBase.cs" />
     <Compile Include="Matchmaker.Net\Client\Server.cs" />
+    <Compile Include="Matchmaker.Net\Client\User.cs" />
     <Compile Include="Matchmaker.Net\Client\UUID.cs" />
     <Compile Include="Matchmaker.Net\Config\Configuration.cs" />
     <Compile Include="Matchmaker.Net\Config\ServerOperationDefinitionsTemplate.cs" />
     <Compile Include="Matchmaker.Net\Config\ServerOperationDefinitionsSample.cs" />
+    <Compile Include="Matchmaker.Net\Enums\ClientType.cs" />
     <Compile Include="Matchmaker.Net\Enums\NetworkObjectType.cs" />
     <Compile Include="Matchmaker.Net\Logging.cs" />
     <Compile Include="Matchmaker.Net\Enums\ErrorSeverity.cs" />
