@@ -1,3 +1,8 @@
+!!! WARNING !!!
+Since I've been seeing lots of activity on this project, I feel obligated to mention:
+
+I haven't had any time to work on this project as of late. This project is in a incomplete state. Use at your own risk. This should be a good base to start from if you wish to implement something similar in your software. By no means should you expect this to function flawlessly. Also, many features are currently missing. If I have time, I will pick it back up.
+
 * [Introduction](#introduction)
 * [Requirements](#requirements)
 * [Reporting issues](#reporting-issues)
